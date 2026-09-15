@@ -87,6 +87,12 @@
             android:theme="@style/Theme.FunTV.Player"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout" />
 
+        <activity
+            android:name=".ui.player.VlcPlaybackActivity"
+            android:exported="false"
+            android:theme="@style/Theme.FunTV.Player"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout" />
+
     </application>
 
 </manifest>
