@@ -7,6 +7,7 @@ import com.funtv.player.data.model.SeasonInfo
 import com.funtv.player.data.model.Series
 import com.funtv.player.data.model.SeriesExtraInfo
 import com.funtv.player.data.model.SeriesInfoResponse
+import com.funtv.player.data.model.VodInfoResponse
 import com.funtv.player.data.model.VodStream
 import com.funtv.player.data.model.XtreamAuthResponse
 import com.funtv.player.data.model.XtreamSession
@@ -68,6 +69,16 @@ class XtreamClient(
 
     suspend fun getVodStreams(session: XtreamSession, categoryId: String): List<VodStream> =
         parseArray(executeGet(actionUrl(session, "get_vod_streams") + "&category_id=${encode(categoryId)}"))
+
+    /** Ficha extendida (sinopsis, reparto, etc.) de una película. No todos los paneles la completan; en ese caso llega con "info" vacío. */
+    suspend fun getVodInfo(session: XtreamSession, vodId: Int): VodInfoResponse {
+        val body = executeGet(actionUrl(session, "get_vod_info") + "&vod_id=$vodId")
+        return try {
+            gson.fromJson(body, VodInfoResponse::class.java) ?: VodInfoResponse()
+        } catch (e: Exception) {
+            VodInfoResponse()
+        }
+    }
 
     suspend fun getSeriesCategories(session: XtreamSession): List<Category> =
         parseArray(executeGet(actionUrl(session, "get_series_categories")))

@@ -51,7 +51,14 @@ class SeasonsRowsFragment : RowsSupportFragment() {
             val episode = item as? Episode ?: return
             val session = requireContext().funTvApp().sessionManager.getSession() ?: return
             val url = StreamUrlBuilder.seriesEpisodeUrl(session, episode.id, episode.containerExtension)
-            startActivity(PlaybackActivity.newIntent(requireContext(), url, episode.title.orEmpty()))
+            startActivity(
+                PlaybackActivity.newIntent(
+                    requireContext(),
+                    url,
+                    episode.title.orEmpty(),
+                    posterUrl = episode.info?.movieImage
+                )
+            )
         }
     }
 }

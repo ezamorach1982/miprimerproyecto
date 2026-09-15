@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import com.funtv.player.data.api.StreamUrlBuilder
 import com.funtv.player.data.model.XtreamSession
 import com.funtv.player.ui.details.SeriesDetailsActivity
+import com.funtv.player.ui.details.VodDetailsActivity
 import com.funtv.player.ui.main.CardPresenter
 import com.funtv.player.ui.main.HomeCardItem
 import com.funtv.player.ui.player.PlaybackActivity
@@ -109,8 +110,15 @@ class CategoryGridFragment : VerticalGridSupportFragment() {
                     )
                 }
                 is HomeCardItem.Vod -> {
-                    val url = StreamUrlBuilder.vodUrl(session, item.stream.streamId, item.stream.containerExtension)
-                    startActivity(PlaybackActivity.newIntent(requireContext(), url, item.stream.name.orEmpty()))
+                    startActivity(
+                        VodDetailsActivity.newIntent(
+                            requireContext(),
+                            item.stream.streamId,
+                            item.stream.name.orEmpty(),
+                            item.stream.streamIcon,
+                            item.stream.containerExtension
+                        )
+                    )
                 }
                 is HomeCardItem.SeriesItem -> {
                     startActivity(

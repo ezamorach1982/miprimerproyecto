@@ -22,6 +22,7 @@ import com.funtv.player.data.cache.VodCacheEntry
 import com.funtv.player.data.model.Category
 import com.funtv.player.data.model.XtreamSession
 import com.funtv.player.ui.details.SeriesDetailsActivity
+import com.funtv.player.ui.details.VodDetailsActivity
 import com.funtv.player.ui.main.CardPresenter
 import com.funtv.player.ui.main.HomeCardItem
 import com.funtv.player.ui.player.PlaybackActivity
@@ -258,8 +259,15 @@ class SectionBrowseFragment : BrowseSupportFragment() {
                     )
                 }
                 is HomeCardItem.Vod -> {
-                    val url = StreamUrlBuilder.vodUrl(session, item.stream.streamId, item.stream.containerExtension)
-                    startActivity(PlaybackActivity.newIntent(requireContext(), url, item.stream.name.orEmpty()))
+                    startActivity(
+                        VodDetailsActivity.newIntent(
+                            requireContext(),
+                            item.stream.streamId,
+                            item.stream.name.orEmpty(),
+                            item.stream.streamIcon,
+                            item.stream.containerExtension
+                        )
+                    )
                 }
                 is HomeCardItem.SeriesItem -> {
                     startActivity(

@@ -14,6 +14,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.upstream.DefaultLoadErrorHandlingPolicy
 import com.funtv.player.R
+import com.funtv.player.data.prefs.ContinueWatchingEntry
 import com.funtv.player.data.prefs.PlaybackPositionManager
 import com.funtv.player.databinding.ActivityPlaybackBinding
 import com.funtv.player.util.funTvApp
@@ -51,6 +52,8 @@ class PlaybackActivity : AppCompatActivity() {
     private var startPositionMs: Long = 0L
 
     private val streamUrl: String by lazy { intent.getStringExtra(EXTRA_URL).orEmpty() }
+    private val streamTitle: String by lazy { intent.getStringExtra(EXTRA_TITLE).orEmpty() }
+    private val posterUrl: String? by lazy { intent.getStringExtra(EXTRA_POSTER) }
     private val isLive: Boolean by lazy { intent.getBooleanExtra(EXTRA_IS_LIVE, false) }
     private val positionManager: PlaybackPositionManager by lazy { funTvApp().playbackPositionManager }
 
@@ -66,7 +69,7 @@ class PlaybackActivity : AppCompatActivity() {
         }
         binding.buttonBack.setOnClickListener { finish() }
 
-        title = intent.getStringExtra(EXTRA_TITLE).orEmpty()
+        title = streamTitle
 
         if (!isLive) {
             val saved = positionManager.getPosition(streamUrl)
@@ -179,8 +182,17 @@ class PlaybackActivity : AppCompatActivity() {
         val duration = current.duration
         if (duration > 0 && position >= duration - PlaybackPositionManager.END_THRESHOLD_MS) {
             positionManager.clearPosition(streamUrl)
-        } else if (position >= PlaybackPositionManager.MIN_RESUME_POSITION_MS) {
-            positionManager.savePosition(streamUrl, position)
+        } else if (position >= PlaybackPositionManager.MIN_RESUME_POSITION_MS && duration > 0) {
+            positionManager.savePosition(
+                ContinueWatchingEntry(
+                    url = streamUrl,
+                    title = streamTitle,
+                    posterUrl = posterUrl,
+                    positionMs = position,
+                    durationMs = duration,
+                    updatedAt = System.currentTimeMillis()
+                )
+            )
         }
     }
 
@@ -215,16 +227,24 @@ class PlaybackActivity : AppCompatActivity() {
     companion object {
         private const val EXTRA_URL = "extra_url"
         private const val EXTRA_TITLE = "extra_title"
+        private const val EXTRA_POSTER = "extra_poster"
         private const val EXTRA_IS_LIVE = "extra_is_live"
         private const val MAX_RETRIES = 5
         private const val RETRY_DELAY_MS = 2000L
         private const val POSITION_SAVE_INTERVAL_MS = 5000L
         private const val SEGMENT_RETRY_COUNT = 6
 
-        fun newIntent(context: Context, url: String, title: String, isLive: Boolean = false): Intent =
+        fun newIntent(
+            context: Context,
+            url: String,
+            title: String,
+            isLive: Boolean = false,
+            posterUrl: String? = null
+        ): Intent =
             Intent(context, PlaybackActivity::class.java)
                 .putExtra(EXTRA_URL, url)
                 .putExtra(EXTRA_TITLE, title)
                 .putExtra(EXTRA_IS_LIVE, isLive)
+                .putExtra(EXTRA_POSTER, posterUrl)
     }
 }

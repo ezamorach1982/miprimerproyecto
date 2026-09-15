@@ -29,11 +29,17 @@
     <string name="home_error_loading">No se pudo cargar el contenido. Selecciona reintentar</string>
     <string name="home_empty_category">Sin contenido</string>
     <string name="exit_confirm">Presiona Atrás de nuevo para salir de FunTV</string>
+    <string name="continue_watching_header">Continuar viendo</string>
+    <string name="continue_watching_percent">%1$d%% visto</string>
 
     <!-- Detalle de serie -->
     <string name="details_seasons_header">Temporada %1$d</string>
     <string name="details_no_episodes">Esta temporada no tiene episodios disponibles</string>
     <string name="details_loading_error">No se pudo cargar la información de la serie</string>
+
+    <!-- Detalle de película -->
+    <string name="vod_play">Reproducir</string>
+    <string name="vod_continue">Continuar viendo</string>
 
     <!-- Reproductor -->
     <string name="player_error_generic">Error de reproducción</string>

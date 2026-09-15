@@ -16,22 +16,26 @@ import androidx.leanback.widget.RowPresenter
 import androidx.lifecycle.lifecycleScope
 import com.funtv.player.R
 import com.funtv.player.data.model.XtreamSession
+import com.funtv.player.data.prefs.ContinueWatchingEntry
 import com.funtv.player.ui.browse.ContentType
 import com.funtv.player.ui.browse.SectionBrowseActivity
 import com.funtv.player.ui.login.LoginActivity
+import com.funtv.player.ui.player.PlaybackActivity
 import com.funtv.player.util.funTvApp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * Pantalla de inicio: solo 4 tarjetas grandes (TV en Vivo, Películas, Series,
- * Cuenta). Cada sección abre su propia pantalla con sus categorías —así no se
- * mezclan canales, películas y series en una sola lista.
+ * Pantalla de inicio: fila "Continuar viendo" (si hay algo pendiente) + 4 tarjetas
+ * grandes (TV en Vivo, Películas, Series, Cuenta). Cada sección abre su propia
+ * pantalla con sus categorías —así no se mezclan canales, películas y series en
+ * una sola lista.
  */
 class MainFragment : BrowseSupportFragment() {
 
     private val rowsAdapter = ArrayObjectAdapter(ListRowPresenter())
+    private val cardPresenter = CardPresenter()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -43,30 +47,49 @@ class MainFragment : BrowseSupportFragment() {
 
         setAdapter(rowsAdapter)
         onItemViewClickedListener = ItemViewClickedListener()
-
-        buildRows()
     }
 
     override fun onResume() {
         super.onResume()
-        if (session() == null) goToLogin()
+        if (session() == null) {
+            goToLogin()
+        } else {
+            buildRows()
+        }
     }
 
     private fun session(): XtreamSession? = requireContext().funTvApp().sessionManager.getSession()
 
     private fun buildRows() {
+        rowsAdapter.clear()
+        addContinueWatchingRowIfAny()
+
         val header = HeaderItem(getString(R.string.landing_header))
         val itemsAdapter = ArrayObjectAdapter(LandingPresenter())
         itemsAdapter.add(LandingItem.LiveTv)
         itemsAdapter.add(LandingItem.Movies)
         itemsAdapter.add(LandingItem.Series)
         itemsAdapter.add(LandingItem.Account)
-        rowsAdapter.clear()
+        rowsAdapter.add(ListRow(header, itemsAdapter))
+    }
+
+    private fun addContinueWatchingRowIfAny() {
+        val entries = requireContext().funTvApp().playbackPositionManager.getContinueWatching()
+        if (entries.isEmpty()) return
+        val header = HeaderItem(getString(R.string.continue_watching_header))
+        val itemsAdapter = ArrayObjectAdapter(cardPresenter)
+        entries.forEach { itemsAdapter.add(HomeCardItem.ContinueWatchingCard(it)) }
         rowsAdapter.add(ListRow(header, itemsAdapter))
     }
 
     private fun openSection(type: ContentType) {
         startActivity(SectionBrowseActivity.newIntent(requireContext(), type))
+    }
+
+    private fun resumeWatching(entry: ContinueWatchingEntry) {
+        startActivity(
+            PlaybackActivity.newIntent(requireContext(), entry.url, entry.title, posterUrl = entry.posterUrl)
+        )
     }
 
     private fun logout() {
@@ -99,6 +122,7 @@ class MainFragment : BrowseSupportFragment() {
                 is LandingItem.Movies -> openSection(ContentType.VOD)
                 is LandingItem.Series -> openSection(ContentType.SERIES)
                 is LandingItem.Account -> logout()
+                is HomeCardItem.ContinueWatchingCard -> resumeWatching(item.entry)
             }
         }
     }

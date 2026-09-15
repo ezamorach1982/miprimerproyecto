@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/funtv_background"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="32dp">
+
+        <ImageView
+            android:id="@+id/imageCover"
+            android:layout_width="220dp"
+            android:layout_height="320dp"
+            android:background="@drawable/placeholder_poster"
+            android:contentDescription="@null"
+            android:scaleType="centerCrop" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textVodTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/funtv_text_primary"
+                android:textSize="26sp"
+                tools:text="Nombre de la película" />
+
+            <TextView
+                android:id="@+id/textVodMeta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:textColor="@color/funtv_accent"
+                android:textSize="14sp"
+                tools:text="2023 · Acción · ★ 8.2 · 1h 45m" />
+
+            <TextView
+                android:id="@+id/textVodPlot"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:ellipsize="end"
+                android:maxLines="6"
+                android:textColor="@color/funtv_text_secondary"
+                android:textSize="14sp"
+                tools:text="Sinopsis de la película con una descripción breve del argumento principal." />
+
+            <TextView
+                android:id="@+id/textVodCast"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:textColor="@color/funtv_text_secondary"
+                android:textSize="13sp"
+                tools:text="Reparto: Actor uno, Actor dos" />
+
+            <Button
+                android:id="@+id/buttonPlay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:backgroundTint="@color/funtv_accent"
+                android:paddingStart="24dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="24dp"
+                android:paddingBottom="12dp"
+                android:textColor="@color/funtv_background"
+                android:textStyle="bold"
+                tools:text="@string/vod_play" />
+
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
