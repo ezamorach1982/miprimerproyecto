@@ -3,6 +3,7 @@ package com.funtv.player.ui.main
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.leanback.app.BrowseSupportFragment
 import androidx.leanback.widget.ArrayObjectAdapter
@@ -13,7 +14,9 @@ import androidx.leanback.widget.OnItemViewClickedListener
 import androidx.leanback.widget.Presenter
 import androidx.leanback.widget.Row
 import androidx.leanback.widget.RowPresenter
+import androidx.lifecycle.lifecycleScope
 import com.funtv.player.R
+import com.funtv.player.data.ContentRefresher
 import com.funtv.player.data.api.StreamUrlBuilder
 import com.funtv.player.data.model.LiveStream
 import com.funtv.player.data.model.XtreamSession
@@ -28,6 +31,7 @@ import com.funtv.player.ui.login.LoginActivity
 import com.funtv.player.ui.player.PlaybackActivity
 import com.funtv.player.ui.search.SearchActivity
 import com.funtv.player.util.funTvApp
+import kotlinx.coroutines.launch
 
 /**
  * Pantalla de inicio: filas "Continuar viendo" y "Favoritos" (si hay algo) + las
@@ -39,6 +43,7 @@ class MainFragment : BrowseSupportFragment() {
 
     private val rowsAdapter = ArrayObjectAdapter(ListRowPresenter())
     private val cardPresenter = CardPresenter(onFavoriteToggled = { buildRows() })
+    private var refreshJob: kotlinx.coroutines.Job? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -77,7 +82,24 @@ class MainFragment : BrowseSupportFragment() {
         itemsAdapter.add(LandingItem.Series)
         itemsAdapter.add(LandingItem.Search)
         itemsAdapter.add(LandingItem.Account)
+        itemsAdapter.add(LandingItem.Refresh)
         rowsAdapter.add(ListRow(header, itemsAdapter))
+    }
+
+    /** Vuelve a descargar el catálogo del servidor sin salir del inicio (botón "Actualizar"). */
+    private fun refreshContent() {
+        if (refreshJob?.isActive == true) return
+        val session = session() ?: return
+        Toast.makeText(requireContext(), R.string.refresh_in_progress, Toast.LENGTH_SHORT).show()
+        refreshJob = viewLifecycleOwner.lifecycleScope.launch {
+            val success = ContentRefresher.refreshAll(app(), session)
+            if (!isAdded) return@launch
+            Toast.makeText(
+                requireContext(),
+                if (success) R.string.refresh_success else R.string.refresh_error,
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     private fun addContinueWatchingRowIfAny() {
@@ -156,6 +178,7 @@ class MainFragment : BrowseSupportFragment() {
                 is LandingItem.Series -> openSection(ContentType.SERIES)
                 is LandingItem.Search -> startActivity(SearchActivity.newIntent(requireContext()))
                 is LandingItem.Account -> startActivity(AccountActivity.newIntent(requireContext()))
+                is LandingItem.Refresh -> refreshContent()
                 is HomeCardItem.ContinueWatchingCard -> resumeWatching(item.entry)
                 is HomeCardItem.FavoriteCard -> openFavorite(item.entry)
             }

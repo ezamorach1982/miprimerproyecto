@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.FragmentActivity
 import com.funtv.player.R
+import com.funtv.player.ui.browse.ContentType
 
 /**
  * Extiende FragmentActivity (no AppCompatActivity): Theme.FunTV.Browse desciende de
@@ -29,6 +30,12 @@ class SearchActivity : FragmentActivity(R.layout.activity_search) {
     }
 
     companion object {
-        fun newIntent(context: Context): Intent = Intent(context, SearchActivity::class.java)
+        const val EXTRA_CONTENT_TYPE_FILTER = "extra_content_type_filter"
+
+        /** [contentTypeFilter] limita la búsqueda a una sola sección (TV/Películas/Series); null busca en todas. */
+        fun newIntent(context: Context, contentTypeFilter: ContentType? = null): Intent =
+            Intent(context, SearchActivity::class.java).apply {
+                if (contentTypeFilter != null) putExtra(EXTRA_CONTENT_TYPE_FILTER, contentTypeFilter.name)
+            }
     }
 }

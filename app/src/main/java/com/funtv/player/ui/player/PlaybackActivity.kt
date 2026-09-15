@@ -12,6 +12,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.upstream.DefaultLoadErrorHandlingPolicy
@@ -117,7 +118,16 @@ class PlaybackActivity : AppCompatActivity() {
         val mediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory)
             .setLoadErrorHandlingPolicy(loadErrorHandlingPolicy)
 
-        val exoPlayer = ExoPlayer.Builder(this)
+        // Algunas grabaciones IPTV traen audio en formatos/perfiles que el decodificador
+        // "preferido" del dispositivo no soporta bien (video se ve, audio se pierde).
+        // Con esto, si el decodificador preferido falla, ExoPlayer prueba con otro
+        // decodificador disponible en el dispositivo para el mismo códec en vez de
+        // simplemente quedarse sin audio.
+        val renderersFactory = DefaultRenderersFactory(this)
+            .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
+            .setEnableDecoderFallback(true)
+
+        val exoPlayer = ExoPlayer.Builder(this, renderersFactory)
             .setMediaSourceFactory(mediaSourceFactory)
             .build()
 

@@ -46,18 +46,25 @@ class CategoryGridFragment : VerticalGridSupportFragment() {
     private val categoryId: String by lazy { requireArguments().getString(ARG_CATEGORY_ID)!! }
     private val categoryName: String by lazy { requireArguments().getString(ARG_CATEGORY_NAME).orEmpty() }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-        title = categoryName
-
+        // VerticalGridSupportFragment crea la vista de la cuadrícula dentro de su propio
+        // onCreateView() usando el gridPresenter ya asignado; si se asigna después (p. ej.
+        // en onViewCreated, que corre luego de onCreateView) el presenter todavía es null
+        // ahí y la fragment revienta con NullPointerException al abrir la pantalla.
         val gridPresenter = VerticalGridPresenter()
         gridPresenter.numberOfColumns = GRID_COLUMNS
         setGridPresenter(gridPresenter)
 
         adapter = itemsAdapter
         onItemViewClickedListener = ItemViewClickedListener()
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        title = categoryName
         loadItems()
     }
 

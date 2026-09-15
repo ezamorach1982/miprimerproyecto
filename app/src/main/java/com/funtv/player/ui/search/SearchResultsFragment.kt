@@ -1,7 +1,6 @@
 package com.funtv.player.ui.search
 
 import android.os.Bundle
-import android.view.View
 import android.widget.Toast
 import androidx.leanback.app.VerticalGridSupportFragment
 import androidx.leanback.widget.ArrayObjectAdapter
@@ -12,6 +11,7 @@ import androidx.leanback.widget.RowPresenter
 import androidx.leanback.widget.VerticalGridPresenter
 import com.funtv.player.R
 import com.funtv.player.data.api.StreamUrlBuilder
+import com.funtv.player.ui.browse.ContentType
 import com.funtv.player.ui.details.SeriesDetailsActivity
 import com.funtv.player.ui.details.VodDetailsActivity
 import com.funtv.player.ui.main.CardPresenter
@@ -30,9 +30,12 @@ class SearchResultsFragment : VerticalGridSupportFragment() {
     private val itemsAdapter = ArrayObjectAdapter(CardPresenter())
     private var lastQuery: String = ""
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
+        // Igual que en CategoryGridFragment: el gridPresenter debe existir ANTES de
+        // onCreateView (que corre antes de onViewCreated), o la fragment revienta con
+        // NullPointerException al construir su propia vista.
         val gridPresenter = VerticalGridPresenter()
         gridPresenter.numberOfColumns = GRID_COLUMNS
         setGridPresenter(gridPresenter)
@@ -51,25 +54,36 @@ class SearchResultsFragment : VerticalGridSupportFragment() {
         }
     }
 
+    /** Si la búsqueda se abrió desde una sección (TV/Películas/Series), limita los resultados a esa sección. */
+    private fun contentTypeFilter(): ContentType? =
+        requireActivity().intent.getStringExtra(SearchActivity.EXTRA_CONTENT_TYPE_FILTER)?.let { ContentType.valueOf(it) }
+
     private fun searchCatalog(query: String): List<HomeCardItem> {
         val q = query.trim().lowercase()
         if (q.isEmpty()) return emptyList()
         val cache = requireContext().funTvApp().catalogCache
+        val filter = contentTypeFilter()
 
-        val liveResults = cache.readLive()?.streamsByCategory?.values.orEmpty()
-            .flatten()
-            .filter { it.name?.lowercase()?.contains(q) == true }
-            .map { HomeCardItem.Live(it) }
+        val liveResults = if (filter == null || filter == ContentType.LIVE) {
+            cache.readLive()?.streamsByCategory?.values.orEmpty()
+                .flatten()
+                .filter { it.name?.lowercase()?.contains(q) == true }
+                .map { HomeCardItem.Live(it) }
+        } else emptyList()
 
-        val vodResults = cache.readVod()?.streamsByCategory?.values.orEmpty()
-            .flatten()
-            .filter { it.name?.lowercase()?.contains(q) == true }
-            .map { HomeCardItem.Vod(it) }
+        val vodResults = if (filter == null || filter == ContentType.VOD) {
+            cache.readVod()?.streamsByCategory?.values.orEmpty()
+                .flatten()
+                .filter { it.name?.lowercase()?.contains(q) == true }
+                .map { HomeCardItem.Vod(it) }
+        } else emptyList()
 
-        val seriesResults = cache.readSeries()?.seriesByCategory?.values.orEmpty()
-            .flatten()
-            .filter { it.name?.lowercase()?.contains(q) == true }
-            .map { HomeCardItem.SeriesItem(it) }
+        val seriesResults = if (filter == null || filter == ContentType.SERIES) {
+            cache.readSeries()?.seriesByCategory?.values.orEmpty()
+                .flatten()
+                .filter { it.name?.lowercase()?.contains(q) == true }
+                .map { HomeCardItem.SeriesItem(it) }
+        } else emptyList()
 
         return liveResults + vodResults + seriesResults
     }

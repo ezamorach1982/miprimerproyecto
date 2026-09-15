@@ -1,67 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/funtv_background"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:padding="48dp">
+    android:fillViewport="true">
 
-    <ImageView
-        android:layout_width="96dp"
-        android:layout_height="96dp"
-        android:contentDescription="@null"
-        android:src="@drawable/funtv_logo" />
-
-    <TextView
-        android:id="@+id/textAccountServer"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:textColor="@color/funtv_text_primary"
-        android:textSize="18sp"
-        tools:text="http://midominio.com:8080" />
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="48dp">
 
-    <TextView
-        android:id="@+id/textAccountUsername"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:textColor="@color/funtv_text_secondary"
-        android:textSize="14sp"
-        tools:text="Usuario: miusuario" />
+        <ImageView
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:contentDescription="@null"
+            android:src="@drawable/funtv_logo" />
 
-    <TextView
-        android:id="@+id/textAccountExpiration"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:textColor="@color/funtv_accent"
-        android:textSize="14sp"
-        tools:text="Tu cuenta vence el 31/12/2026" />
+        <TextView
+            android:id="@+id/textAccountServer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:textColor="@color/funtv_text_primary"
+            android:textSize="18sp"
+            tools:text="http://midominio.com:8080" />
 
-    <Button
-        android:id="@+id/buttonLogout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:backgroundTint="@color/funtv_error"
-        android:paddingStart="24dp"
-        android:paddingTop="12dp"
-        android:paddingEnd="24dp"
-        android:paddingBottom="12dp"
-        android:text="@string/action_logout"
-        android:textColor="@color/funtv_text_primary"
-        android:textStyle="bold" />
+        <TextView
+            android:id="@+id/textAccountUsername"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/funtv_text_secondary"
+            android:textSize="14sp"
+            tools:text="Usuario: miusuario" />
 
-    <TextView
-        android:id="@+id/textAppVersion"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:textColor="@color/funtv_text_secondary"
-        android:textSize="12sp"
-        tools:text="FunTV Player 1.0.0" />
+        <TextView
+            android:id="@+id/textAccountExpiration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textColor="@color/funtv_accent"
+            android:textSize="14sp"
+            tools:text="Tu cuenta vence el 31/12/2026" />
 
-</LinearLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/settings_section_content"
+            android:textColor="@color/funtv_text_secondary"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/buttonRefreshContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@color/funtv_surface_focused"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:text="@string/action_refresh_now"
+            android:textColor="@color/funtv_text_primary" />
+
+        <Button
+            android:id="@+id/buttonClearImageCache"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="@color/funtv_surface_focused"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:text="@string/action_clear_image_cache"
+            android:textColor="@color/funtv_text_primary" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/settings_section_account"
+            android:textColor="@color/funtv_text_secondary"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/buttonLogout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@color/funtv_error"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:text="@string/action_logout"
+            android:textColor="@color/funtv_text_primary"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/textAppVersion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:textColor="@color/funtv_text_secondary"
+            android:textSize="12sp"
+            tools:text="FunTV Player 1.0.0" />
+
+    </LinearLayout>
+
+</ScrollView>

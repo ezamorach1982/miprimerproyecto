@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ícono de actualizar: flecha circular -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="400dp"
+    android:height="220dp"
+    android:viewportWidth="200"
+    android:viewportHeight="110">
+
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineCap="round"
+        android:strokeWidth="7"
+        android:pathData="M108,36 A24,24 0 1,0 122,72" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M108,22 L124,36 L106,44 Z" />
+
+</vector>

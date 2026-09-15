@@ -22,8 +22,12 @@
     <string name="header_live">TV en Vivo</string>
     <string name="header_movies">Películas</string>
     <string name="header_series">Series</string>
-    <string name="header_account">Cuenta</string>
+    <string name="header_account">Cuenta y ajustes</string>
     <string name="header_search">Buscar</string>
+    <string name="header_refresh">Actualizar</string>
+    <string name="refresh_in_progress">Actualizando contenido del servidor…</string>
+    <string name="refresh_success">Contenido actualizado</string>
+    <string name="refresh_error">No se pudo actualizar el contenido. Intenta de nuevo</string>
     <string name="action_logout">Cerrar sesión</string>
     <string name="action_retry">Reintentar</string>
     <string name="action_see_all">Ver todo</string>
@@ -35,6 +39,12 @@
     <string name="favorites_header">Favoritos</string>
     <string name="account_username_format">Usuario: %1$s</string>
     <string name="app_version_format">FunTV Player %1$s</string>
+    <string name="settings_section_content">Contenido</string>
+    <string name="settings_section_account">Cuenta</string>
+    <string name="action_refresh_now">Actualizar contenido ahora</string>
+    <string name="action_refresh_in_progress">Actualizando…</string>
+    <string name="action_clear_image_cache">Borrar caché de imágenes</string>
+    <string name="image_cache_cleared">Caché de imágenes borrado</string>
     <string name="favorite_added">Agregado a favoritos</string>
     <string name="favorite_removed">Quitado de favoritos</string>
     <string name="search_title">Buscar</string>

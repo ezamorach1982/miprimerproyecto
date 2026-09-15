@@ -3,18 +3,27 @@ package com.funtv.player.ui.main
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import coil.Coil
 import com.funtv.player.BuildConfig
 import com.funtv.player.R
+import com.funtv.player.data.ContentRefresher
 import com.funtv.player.databinding.ActivityAccountBinding
 import com.funtv.player.ui.login.LoginActivity
 import com.funtv.player.util.formatExpirationDate
 import com.funtv.player.util.funTvApp
+import kotlinx.coroutines.launch
 
-/** Datos de la cuenta conectada (servidor, usuario, vencimiento), versión de la app y cierre de sesión. */
+/**
+ * Cuenta conectada (servidor, usuario, vencimiento) y ajustes generales: actualizar el
+ * catálogo, borrar la caché de imágenes, versión de la app y cierre de sesión.
+ */
 class AccountActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAccountBinding
+    private var refreshInProgress = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,7 +43,35 @@ class AccountActivity : AppCompatActivity() {
 
         binding.textAppVersion.text = getString(R.string.app_version_format, BuildConfig.VERSION_NAME)
 
+        binding.buttonRefreshContent.setOnClickListener { refreshContent() }
+        binding.buttonClearImageCache.setOnClickListener { clearImageCache() }
         binding.buttonLogout.setOnClickListener { logout() }
+    }
+
+    private fun refreshContent() {
+        if (refreshInProgress) return
+        val session = funTvApp().sessionManager.getSession() ?: return
+        refreshInProgress = true
+        binding.buttonRefreshContent.isEnabled = false
+        binding.buttonRefreshContent.text = getString(R.string.action_refresh_in_progress)
+        lifecycleScope.launch {
+            val success = ContentRefresher.refreshAll(funTvApp(), session)
+            refreshInProgress = false
+            binding.buttonRefreshContent.isEnabled = true
+            binding.buttonRefreshContent.text = getString(R.string.action_refresh_now)
+            Toast.makeText(
+                this@AccountActivity,
+                if (success) R.string.refresh_success else R.string.refresh_error,
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    private fun clearImageCache() {
+        val loader = Coil.imageLoader(this)
+        loader.memoryCache?.clear()
+        loader.diskCache?.clear()
+        Toast.makeText(this, R.string.image_cache_cleared, Toast.LENGTH_SHORT).show()
     }
 
     private fun logout() {
