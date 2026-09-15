@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ícono de reproducción (triángulo "play") -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="400dp"
+    android:height="220dp"
+    android:viewportWidth="200"
+    android:viewportHeight="110">
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.95"
+        android:pathData="M82,32 L82,78 L124,55 Z" />
+
+</vector>

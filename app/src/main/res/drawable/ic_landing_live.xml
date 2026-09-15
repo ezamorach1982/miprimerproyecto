@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ícono de televisor: pantalla con marco (recorte oscuro) + cuello + base -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="400dp"
+    android:height="220dp"
+    android:viewportWidth="200"
+    android:viewportHeight="110">
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.95"
+        android:pathData="M64,28 H136 V74 H64 Z M90,74 H110 V80 H90 Z M78,80 H122 V85 H78 Z" />
+    <path
+        android:fillColor="#0D0D12"
+        android:pathData="M70,34 H130 V68 H70 Z" />
+
+</vector>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ícono de cuenta: cabeza (círculo) + hombros (trapecio) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="400dp"
+    android:height="220dp"
+    android:viewportWidth="200"
+    android:viewportHeight="110">
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.95"
+        android:pathData="M86,40 a14,14 0 1,0 28,0 a14,14 0 1,0 -28,0 Z M92,58 L108,58 L122,86 L78,86 Z" />
+
+</vector>

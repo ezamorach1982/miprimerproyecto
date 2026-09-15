@@ -1,8 +1,6 @@
 package com.funtv.player.ui.main
 
-import android.graphics.drawable.ColorDrawable
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.leanback.widget.ImageCardView
 import androidx.leanback.widget.Presenter
 
@@ -21,8 +19,7 @@ class LandingPresenter : Presenter() {
         val landingItem = item as? LandingItem ?: return
         cardView.titleText = cardView.context.getString(landingItem.titleRes)
         cardView.contentText = ""
-        val color = ContextCompat.getColor(cardView.context, landingItem.colorRes)
-        cardView.mainImageView.setImageDrawable(ColorDrawable(color))
+        cardView.mainImageView.setImageResource(landingItem.drawableRes)
     }
 
     override fun onUnbindViewHolder(viewHolder: ViewHolder) {
