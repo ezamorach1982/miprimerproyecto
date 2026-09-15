@@ -37,7 +37,8 @@ class MainFragment : BrowseSupportFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setTitle(getString(R.string.home_title))
-        setHeadersState(HEADERS_DISABLED)
+        setHeadersState(HEADERS_ENABLED)
+        setHeadersTransitionOnBackEnabled(true)
         setBrandColor(ContextCompat.getColor(requireContext(), R.color.funtv_background))
 
         setAdapter(rowsAdapter)
@@ -54,7 +55,7 @@ class MainFragment : BrowseSupportFragment() {
     private fun session(): XtreamSession? = requireContext().funTvApp().sessionManager.getSession()
 
     private fun buildRows() {
-        val header = HeaderItem(getString(R.string.home_title))
+        val header = HeaderItem(getString(R.string.landing_header))
         val itemsAdapter = ArrayObjectAdapter(LandingPresenter())
         itemsAdapter.add(LandingItem.LiveTv)
         itemsAdapter.add(LandingItem.Movies)
