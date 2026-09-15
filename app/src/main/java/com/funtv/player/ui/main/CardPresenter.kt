@@ -17,7 +17,13 @@ import com.funtv.player.data.prefs.FavoriteType
 import com.funtv.player.data.prefs.FavoritesManager
 import com.funtv.player.util.funTvApp
 
-class CardPresenter : Presenter() {
+/**
+ * @param onFavoriteToggled se llama después de marcar/desmarcar un favorito
+ * (mantener presionado). La usa el Home para refrescar su fila "Favoritos" al
+ * instante cuando se quita uno desde ahí mismo; el resto de las pantallas no la
+ * necesita y puede omitirla.
+ */
+class CardPresenter(private val onFavoriteToggled: (() -> Unit)? = null) : Presenter() {
 
     private class CardViewHolder(cardView: ImageCardView, val progressView: View) : ViewHolder(cardView)
 
@@ -105,6 +111,7 @@ class CardPresenter : Presenter() {
                 if (nowFavorite) R.string.favorite_added else R.string.favorite_removed,
                 Toast.LENGTH_SHORT
             ).show()
+            onFavoriteToggled?.invoke()
             true
         }
     }

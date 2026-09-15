@@ -15,6 +15,10 @@ import androidx.lifecycle.lifecycleScope
 import com.funtv.player.R
 import com.funtv.player.data.api.StreamUrlBuilder
 import com.funtv.player.data.api.XtreamSessionExpiredException
+import com.funtv.player.data.cache.LiveCacheEntry
+import com.funtv.player.data.cache.SeriesCacheEntry
+import com.funtv.player.data.cache.VodCacheEntry
+import com.funtv.player.data.model.Category
 import com.funtv.player.data.model.XtreamSession
 import com.funtv.player.ui.details.SeriesDetailsActivity
 import com.funtv.player.ui.details.VodDetailsActivity
@@ -84,14 +88,49 @@ class CategoryGridFragment : VerticalGridSupportFragment() {
             if (!fresh.isNullOrEmpty()) {
                 itemsAdapter.clear()
                 itemsAdapter.addAll(0, fresh)
+                withContext(Dispatchers.IO) { writeCacheForThisCategory(fresh) }
             }
         }
     }
+
+    /** Guarda lo recién descargado en el mismo caché que usan las filas horizontales, para que quede disponible la próxima vez sin depender de haber pasado antes por ahí. */
+    private fun writeCacheForThisCategory(items: List<HomeCardItem>) {
+        val cache = app().catalogCache
+        when (contentType) {
+            ContentType.LIVE -> {
+                val existing = cache.readLive()
+                val categories = existing?.categories.orEmpty().ifEmpty { listOf(currentCategoryPlaceholder()) }
+                val map = existing?.streamsByCategory.orEmpty().toMutableMap()
+                map[categoryId] = items.mapNotNull { (it as? HomeCardItem.Live)?.stream }
+                cache.writeLive(LiveCacheEntry(categories, map))
+            }
+            ContentType.VOD -> {
+                val existing = cache.readVod()
+                val categories = existing?.categories.orEmpty().ifEmpty { listOf(currentCategoryPlaceholder()) }
+                val map = existing?.streamsByCategory.orEmpty().toMutableMap()
+                map[categoryId] = items.mapNotNull { (it as? HomeCardItem.Vod)?.stream }
+                cache.writeVod(VodCacheEntry(categories, map))
+            }
+            ContentType.SERIES -> {
+                val existing = cache.readSeries()
+                val categories = existing?.categories.orEmpty().ifEmpty { listOf(currentCategoryPlaceholder()) }
+                val map = existing?.seriesByCategory.orEmpty().toMutableMap()
+                map[categoryId] = items.mapNotNull { (it as? HomeCardItem.SeriesItem)?.series }
+                cache.writeSeries(SeriesCacheEntry(categories, map))
+            }
+        }
+    }
+
+    private fun currentCategoryPlaceholder() = Category(categoryId = categoryId, categoryName = categoryName)
 
     private fun goToLoginDueToExpiredSession() {
         if (!isAdded) return
         app().sessionManager.clearSession()
         app().catalogCache.clear()
+        app().favoritesManager.clearAll()
+        app().playbackPositionManager.clearAll()
+        app().liveZapList = emptyList()
+        app().liveZapIndex = -1
         Toast.makeText(requireContext(), R.string.session_expired, Toast.LENGTH_LONG).show()
         val intent = Intent(requireContext(), LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

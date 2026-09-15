@@ -48,6 +48,11 @@ class PlaybackPositionManager(context: Context) {
     fun getContinueWatching(limit: Int = 20): List<ContinueWatchingEntry> =
         readAll().values.sortedByDescending { it.updatedAt }.take(limit)
 
+    /** Se llama al cerrar sesión: las URLs guardadas apuntan al servidor/cuenta anterior. */
+    fun clearAll() {
+        prefs.edit().clear().apply()
+    }
+
     private fun readAll(): MutableMap<String, ContinueWatchingEntry> {
         val json = prefs.getString(KEY_ENTRIES, null) ?: return mutableMapOf()
         return try {

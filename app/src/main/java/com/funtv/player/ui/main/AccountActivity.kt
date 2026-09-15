@@ -41,6 +41,10 @@ class AccountActivity : AppCompatActivity() {
         val app = funTvApp()
         app.sessionManager.clearSession()
         app.catalogCache.clear()
+        app.favoritesManager.clearAll()
+        app.playbackPositionManager.clearAll()
+        app.liveZapList = emptyList()
+        app.liveZapIndex = -1
         val intent = Intent(this, LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)

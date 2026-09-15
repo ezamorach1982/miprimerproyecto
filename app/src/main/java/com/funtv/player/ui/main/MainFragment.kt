@@ -15,6 +15,7 @@ import androidx.leanback.widget.Row
 import androidx.leanback.widget.RowPresenter
 import com.funtv.player.R
 import com.funtv.player.data.api.StreamUrlBuilder
+import com.funtv.player.data.model.LiveStream
 import com.funtv.player.data.model.XtreamSession
 import com.funtv.player.data.prefs.ContinueWatchingEntry
 import com.funtv.player.data.prefs.FavoriteEntry
@@ -37,7 +38,7 @@ import com.funtv.player.util.funTvApp
 class MainFragment : BrowseSupportFragment() {
 
     private val rowsAdapter = ArrayObjectAdapter(ListRowPresenter())
-    private val cardPresenter = CardPresenter()
+    private val cardPresenter = CardPresenter(onFavoriteToggled = { buildRows() })
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -111,8 +112,18 @@ class MainFragment : BrowseSupportFragment() {
         when (entry.type) {
             FavoriteType.LIVE -> {
                 val session = session() ?: return
+                // Arma la lista de zapping con los demás canales favoritos, para
+                // que DPAD arriba/abajo funcione también al entrar por Favoritos
+                // (si no, quedaría sin lista o con una de una sección distinta).
+                val liveFavorites = app().favoritesManager.getFavorites().filter { it.type == FavoriteType.LIVE }
+                val zapList = liveFavorites.map { fav -> LiveStream(streamId = fav.id, name = fav.title, streamIcon = fav.posterUrl) }
+                app().liveZapList = zapList
+                app().liveZapIndex = zapList.indexOfFirst { it.streamId == entry.id }
+
                 val url = StreamUrlBuilder.liveUrl(session, entry.id)
-                startActivity(PlaybackActivity.newIntent(requireContext(), url, entry.title, isLive = true))
+                startActivity(
+                    PlaybackActivity.newIntent(requireContext(), url, entry.title, isLive = true, posterUrl = entry.posterUrl)
+                )
             }
             FavoriteType.VOD -> {
                 startActivity(

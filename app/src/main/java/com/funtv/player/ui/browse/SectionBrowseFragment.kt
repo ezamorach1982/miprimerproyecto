@@ -31,6 +31,7 @@ import com.funtv.player.ui.main.HomeCardItem
 import com.funtv.player.ui.player.PlaybackActivity
 import com.funtv.player.util.funTvApp
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
@@ -58,6 +59,7 @@ class SectionBrowseFragment : BrowseSupportFragment() {
     private val rowsAdapter = ArrayObjectAdapter(ListRowPresenter())
     private val cardPresenter = CardPresenter()
     private val concurrencyLimiter = Semaphore(5)
+    private var loadJob: Job? = null
 
     private val contentType: ContentType by lazy {
         ContentType.valueOf(requireArguments().getString(ARG_CONTENT_TYPE)!!)
@@ -93,6 +95,10 @@ class SectionBrowseFragment : BrowseSupportFragment() {
         if (!isAdded) return
         app().sessionManager.clearSession()
         app().catalogCache.clear()
+        app().favoritesManager.clearAll()
+        app().playbackPositionManager.clearAll()
+        app().liveZapList = emptyList()
+        app().liveZapIndex = -1
         Toast.makeText(requireContext(), R.string.session_expired, Toast.LENGTH_LONG).show()
         val intent = Intent(requireContext(), LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -120,7 +126,8 @@ class SectionBrowseFragment : BrowseSupportFragment() {
         val session = session() ?: return
         rowsAdapter.clear()
 
-        viewLifecycleOwner.lifecycleScope.launch {
+        loadJob?.cancel()
+        loadJob = viewLifecycleOwner.lifecycleScope.launch {
             val cached = withContext(Dispatchers.IO) { readCache() }
             val shownFromCache = cached != null && cached.isNotEmpty()
 

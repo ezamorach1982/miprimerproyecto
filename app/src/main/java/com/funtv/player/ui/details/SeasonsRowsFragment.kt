@@ -44,17 +44,25 @@ class SeasonsRowsFragment : RowsSupportFragment() {
         }
     }
 
-    /** Busca el episodio que sigue al dado: el siguiente en la misma temporada o, si es el último, el primero de la siguiente temporada con episodios. */
-    private fun findNextEpisode(current: Episode): Episode? {
-        val info = seriesInfo ?: return null
-        val season = current.season ?: 0
-        val sameSeasonEpisodes = info.episodesBySeason[season]?.sortedBy { it.episodeNum ?: 0 } ?: return null
-        val currentIndex = sameSeasonEpisodes.indexOfFirst { it.id == current.id }
-        if (currentIndex == -1) return null
-        if (currentIndex + 1 < sameSeasonEpisodes.size) return sameSeasonEpisodes[currentIndex + 1]
+    /**
+     * Todos los episodios que siguen al dado, en orden: el resto de la misma
+     * temporada y luego las temporadas siguientes. Se pasa completa (no solo el
+     * siguiente) para que el autoplay de PlaybackActivity pueda encadenar varios
+     * episodios seguidos, no solo uno.
+     */
+    private fun remainingEpisodes(from: Episode): List<Episode> {
+        val info = seriesInfo ?: return emptyList()
+        val season = from.season ?: 0
+        val sameSeasonEpisodes = info.episodesBySeason[season]?.sortedBy { it.episodeNum ?: 0 } ?: return emptyList()
+        val currentIndex = sameSeasonEpisodes.indexOfFirst { it.id == from.id }
+        if (currentIndex == -1) return emptyList()
 
-        val nextSeasonNumber = info.episodesBySeason.keys.filter { it > season }.minOrNull() ?: return null
-        return info.episodesBySeason[nextSeasonNumber]?.sortedBy { it.episodeNum ?: 0 }?.firstOrNull()
+        val result = mutableListOf<Episode>()
+        result += sameSeasonEpisodes.drop(currentIndex + 1)
+        info.episodesBySeason.keys.filter { it > season }.sorted().forEach { laterSeason ->
+            result += info.episodesBySeason[laterSeason]?.sortedBy { it.episodeNum ?: 0 }.orEmpty()
+        }
+        return result
     }
 
     private fun episodeUrl(session: XtreamSession, episode: Episode): String =
@@ -69,16 +77,16 @@ class SeasonsRowsFragment : RowsSupportFragment() {
         ) {
             val episode = item as? Episode ?: return
             val session = requireContext().funTvApp().sessionManager.getSession() ?: return
-            val next = findNextEpisode(episode)
+            val queue = remainingEpisodes(episode).map { ep ->
+                PlaybackActivity.UpNextItem(episodeUrl(session, ep), ep.title.orEmpty(), ep.info?.movieImage)
+            }
             startActivity(
                 PlaybackActivity.newIntent(
                     requireContext(),
                     episodeUrl(session, episode),
                     episode.title.orEmpty(),
                     posterUrl = episode.info?.movieImage,
-                    nextUrl = next?.let { episodeUrl(session, it) },
-                    nextTitle = next?.title,
-                    nextPosterUrl = next?.info?.movieImage
+                    upNextQueue = queue
                 )
             )
         }

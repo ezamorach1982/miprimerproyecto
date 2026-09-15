@@ -59,9 +59,18 @@ class PlaybackActivity : AppCompatActivity() {
     private var currentPoster: String? = null
 
     private val isLive: Boolean by lazy { intent.getBooleanExtra(EXTRA_IS_LIVE, false) }
-    private val nextUrl: String? by lazy { intent.getStringExtra(EXTRA_NEXT_URL) }
-    private val nextTitle: String by lazy { intent.getStringExtra(EXTRA_NEXT_TITLE).orEmpty() }
-    private val nextPoster: String? by lazy { intent.getStringExtra(EXTRA_NEXT_POSTER) }
+
+    // Cola de episodios que siguen a este (no solo el inmediato siguiente): al
+    // avanzar automáticamente, el resto de la cola se reenvía a la próxima
+    // instancia de esta Activity para que el maratón continúe más de un salto.
+    private val upNextQueue: List<UpNextItem> by lazy {
+        val urls = intent.getStringArrayListExtra(EXTRA_QUEUE_URLS).orEmpty()
+        val titles = intent.getStringArrayListExtra(EXTRA_QUEUE_TITLES).orEmpty()
+        val posters = intent.getStringArrayListExtra(EXTRA_QUEUE_POSTERS).orEmpty()
+        urls.indices.map { i ->
+            UpNextItem(urls[i], titles.getOrElse(i) { "" }, posters.getOrNull(i)?.takeIf { it.isNotEmpty() })
+        }
+    }
     private val positionManager: PlaybackPositionManager by lazy { funTvApp().playbackPositionManager }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -210,14 +219,22 @@ class PlaybackActivity : AppCompatActivity() {
         }
     }
 
-    /** Al terminar un episodio, si se conoce el siguiente, avisa y lo reproduce solo tras una pausa breve. */
+    /** Al terminar un episodio, si se conoce el siguiente, avisa y lo reproduce solo tras una pausa breve; el resto de la cola sigue de largo hacia la próxima instancia. */
     private fun maybeAutoPlayNext() {
-        val url = nextUrl ?: return
-        Toast.makeText(this, getString(R.string.player_next_episode, nextTitle), Toast.LENGTH_LONG).show()
+        val next = upNextQueue.firstOrNull() ?: return
+        Toast.makeText(this, getString(R.string.player_next_episode, next.title), Toast.LENGTH_LONG).show()
         nextEpisodeJob?.cancel()
         nextEpisodeJob = lifecycleScope.launch {
             delay(AUTO_NEXT_DELAY_MS)
-            startActivity(newIntent(this@PlaybackActivity, url, nextTitle, posterUrl = nextPoster))
+            startActivity(
+                newIntent(
+                    this@PlaybackActivity,
+                    next.url,
+                    next.title,
+                    posterUrl = next.posterUrl,
+                    upNextQueue = upNextQueue.drop(1)
+                )
+            )
             finish()
         }
     }
@@ -297,14 +314,17 @@ class PlaybackActivity : AppCompatActivity() {
         releasePlayer()
     }
 
+    /** Un elemento de la cola de reproducción automática (episodios que siguen al actual). */
+    data class UpNextItem(val url: String, val title: String, val posterUrl: String? = null)
+
     companion object {
         private const val EXTRA_URL = "extra_url"
         private const val EXTRA_TITLE = "extra_title"
         private const val EXTRA_POSTER = "extra_poster"
         private const val EXTRA_IS_LIVE = "extra_is_live"
-        private const val EXTRA_NEXT_URL = "extra_next_url"
-        private const val EXTRA_NEXT_TITLE = "extra_next_title"
-        private const val EXTRA_NEXT_POSTER = "extra_next_poster"
+        private const val EXTRA_QUEUE_URLS = "extra_queue_urls"
+        private const val EXTRA_QUEUE_TITLES = "extra_queue_titles"
+        private const val EXTRA_QUEUE_POSTERS = "extra_queue_posters"
         private const val MAX_RETRIES = 5
         private const val RETRY_DELAY_MS = 2000L
         private const val POSITION_SAVE_INTERVAL_MS = 5000L
@@ -317,17 +337,15 @@ class PlaybackActivity : AppCompatActivity() {
             title: String,
             isLive: Boolean = false,
             posterUrl: String? = null,
-            nextUrl: String? = null,
-            nextTitle: String? = null,
-            nextPosterUrl: String? = null
+            upNextQueue: List<UpNextItem> = emptyList()
         ): Intent =
             Intent(context, PlaybackActivity::class.java)
                 .putExtra(EXTRA_URL, url)
                 .putExtra(EXTRA_TITLE, title)
                 .putExtra(EXTRA_IS_LIVE, isLive)
                 .putExtra(EXTRA_POSTER, posterUrl)
-                .putExtra(EXTRA_NEXT_URL, nextUrl)
-                .putExtra(EXTRA_NEXT_TITLE, nextTitle)
-                .putExtra(EXTRA_NEXT_POSTER, nextPosterUrl)
+                .putStringArrayListExtra(EXTRA_QUEUE_URLS, ArrayList(upNextQueue.map { it.url }))
+                .putStringArrayListExtra(EXTRA_QUEUE_TITLES, ArrayList(upNextQueue.map { it.title }))
+                .putStringArrayListExtra(EXTRA_QUEUE_POSTERS, ArrayList(upNextQueue.map { it.posterUrl.orEmpty() }))
     }
 }

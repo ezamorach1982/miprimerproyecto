@@ -44,6 +44,11 @@ class FavoritesManager(context: Context) {
     fun getFavorites(): List<FavoriteEntry> =
         readAll().values.sortedByDescending { it.addedAt }
 
+    /** Se llama al cerrar sesión: los IDs son específicos de cada proveedor Xtream, no deben sobrevivir a un cambio de cuenta. */
+    fun clearAll() {
+        prefs.edit().clear().apply()
+    }
+
     private fun readAll(): MutableMap<String, FavoriteEntry> {
         val json = prefs.getString(KEY_ENTRIES, null) ?: return mutableMapOf()
         return try {
