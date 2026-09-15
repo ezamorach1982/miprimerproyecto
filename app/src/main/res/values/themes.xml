@@ -13,12 +13,9 @@
 
     <!-- Home / detalle: usan BrowseSupportFragment / RowsSupportFragment de Leanback,
          que requieren un tema descendiente de Theme.Leanback -->
+    <!-- El color de marca (barra de títulos/encabezados) se fija en código con
+         setBrandColor() en MainFragment, así que aquí solo se toca el fondo. -->
     <style name="Theme.FunTV.Browse" parent="Theme.Leanback">
-        <item name="browseErrorColor">@color/funtv_error</item>
-        <item name="defaultBrandColor">@color/funtv_background</item>
-        <item name="defaultBrandColorDark">@color/funtv_background</item>
-        <item name="defaultSearchColor">@color/funtv_surface</item>
-        <item name="defaultSearchIconColor">@color/funtv_accent</item>
         <item name="android:windowBackground">@color/funtv_background</item>
     </style>
 
