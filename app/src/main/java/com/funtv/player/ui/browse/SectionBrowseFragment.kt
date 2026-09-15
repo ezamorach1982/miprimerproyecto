@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.funtv.player.R
+import com.funtv.player.data.ContentRefresher
 import com.funtv.player.data.api.XtreamSessionExpiredException
 import com.funtv.player.data.cache.LiveCacheEntry
 import com.funtv.player.data.cache.SeriesCacheEntry
@@ -20,6 +21,7 @@ import com.funtv.player.ui.login.LoginActivity
 import com.funtv.player.ui.search.SearchActivity
 import com.funtv.player.util.funTvApp
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -40,6 +42,7 @@ class SectionBrowseFragment : Fragment(R.layout.fragment_section_browse) {
 
     private val sidebarAdapter = CategorySidebarAdapter { category -> selectCategory(category) }
     private var selectedCategoryId: String? = null
+    private var backgroundRefreshJob: Job? = null
 
     private val contentType: ContentType by lazy {
         ContentType.valueOf(requireArguments().getString(ARG_CONTENT_TYPE)!!)
@@ -60,6 +63,26 @@ class SectionBrowseFragment : Fragment(R.layout.fragment_section_browse) {
         }
 
         loadCategories()
+        startBackgroundFullRefresh()
+    }
+
+    /**
+     * Además de la lista (liviana) de categorías para el panel lateral, descarga en
+     * segundo plano el contenido de TODAS las categorías de esta sección y lo guarda en
+     * caché —igual que antes del rediseño a lista lateral + cuadrícula—, para que el
+     * buscador (que solo mira el caché local, sin buscar en el servidor) encuentre
+     * resultados de toda la sección y no solo de la categoría que el usuario ya abrió.
+     */
+    private fun startBackgroundFullRefresh() {
+        if (backgroundRefreshJob?.isActive == true) return
+        val session = session() ?: return
+        backgroundRefreshJob = viewLifecycleOwner.lifecycleScope.launch {
+            when (contentType) {
+                ContentType.LIVE -> ContentRefresher.refreshLive(app(), session)
+                ContentType.VOD -> ContentRefresher.refreshVod(app(), session)
+                ContentType.SERIES -> ContentRefresher.refreshSeries(app(), session)
+            }
+        }
     }
 
     private fun app() = requireContext().funTvApp()

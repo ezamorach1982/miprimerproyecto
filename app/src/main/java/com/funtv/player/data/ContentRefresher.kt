@@ -27,19 +27,33 @@ object ContentRefresher {
     private const val MAX_CONCURRENT_REQUESTS = 5
 
     suspend fun refreshAll(app: FunTvApplication, session: XtreamSession): Boolean = withContext(Dispatchers.IO) {
-        val limiter = Semaphore(MAX_CONCURRENT_REQUESTS)
         var liveOk = false
         var vodOk = false
         var seriesOk = false
         coroutineScope {
-            launch { liveOk = refreshLive(app, session, limiter) }
-            launch { vodOk = refreshVod(app, session, limiter) }
-            launch { seriesOk = refreshSeries(app, session, limiter) }
+            launch { liveOk = refreshLive(app, session) }
+            launch { vodOk = refreshVod(app, session) }
+            launch { seriesOk = refreshSeries(app, session) }
         }
         liveOk || vodOk || seriesOk
     }
 
-    private suspend fun refreshLive(app: FunTvApplication, session: XtreamSession, limiter: Semaphore): Boolean {
+    /** Descarga categorías + contenido de TV en vivo y sobreescribe su caché. */
+    suspend fun refreshLive(app: FunTvApplication, session: XtreamSession): Boolean = withContext(Dispatchers.IO) {
+        refreshLiveInternal(app, session, Semaphore(MAX_CONCURRENT_REQUESTS))
+    }
+
+    /** Descarga categorías + contenido de películas y sobreescribe su caché. */
+    suspend fun refreshVod(app: FunTvApplication, session: XtreamSession): Boolean = withContext(Dispatchers.IO) {
+        refreshVodInternal(app, session, Semaphore(MAX_CONCURRENT_REQUESTS))
+    }
+
+    /** Descarga categorías + contenido de series y sobreescribe su caché. */
+    suspend fun refreshSeries(app: FunTvApplication, session: XtreamSession): Boolean = withContext(Dispatchers.IO) {
+        refreshSeriesInternal(app, session, Semaphore(MAX_CONCURRENT_REQUESTS))
+    }
+
+    private suspend fun refreshLiveInternal(app: FunTvApplication, session: XtreamSession, limiter: Semaphore): Boolean {
         val categories = runCatching { app.xtreamClient.getLiveCategories(session) }.getOrNull()
         if (categories.isNullOrEmpty()) return false
         val map = ConcurrentHashMap<String, List<LiveStream>>()
@@ -58,7 +72,7 @@ object ContentRefresher {
         return true
     }
 
-    private suspend fun refreshVod(app: FunTvApplication, session: XtreamSession, limiter: Semaphore): Boolean {
+    private suspend fun refreshVodInternal(app: FunTvApplication, session: XtreamSession, limiter: Semaphore): Boolean {
         val categories = runCatching { app.xtreamClient.getVodCategories(session) }.getOrNull()
         if (categories.isNullOrEmpty()) return false
         val map = ConcurrentHashMap<String, List<VodStream>>()
@@ -77,7 +91,7 @@ object ContentRefresher {
         return true
     }
 
-    private suspend fun refreshSeries(app: FunTvApplication, session: XtreamSession, limiter: Semaphore): Boolean {
+    private suspend fun refreshSeriesInternal(app: FunTvApplication, session: XtreamSession, limiter: Semaphore): Boolean {
         val categories = runCatching { app.xtreamClient.getSeriesCategories(session) }.getOrNull()
         if (categories.isNullOrEmpty()) return false
         val map = ConcurrentHashMap<String, List<Series>>()
