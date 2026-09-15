@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Banner del lanzador de Android TV (320x180dp). Incluye la marca gráfica de
+     FunTV; el nombre de la app lo superpone el propio lanzador de TV usando
+     android:label, ya que los vector drawables no pueden dibujar texto. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp"
+    android:height="180dp"
+    android:viewportWidth="320"
+    android:viewportHeight="180">
+
+    <path
+        android:fillColor="#0D0D12"
+        android:pathData="M0,0 h320 v180 h-320 Z" />
+
+    <group
+        android:translateX="18"
+        android:translateY="12"
+        android:scaleX="0.72"
+        android:scaleY="0.72">
+        <path
+            android:fillColor="#F5A623"
+            android:pathData="M25,36 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0 Z" />
+        <path
+            android:fillColor="#2CA9E1"
+            android:pathData="M55,36 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0 Z" />
+        <path
+            android:fillColor="#E8433A"
+            android:pathData="M19,70 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0 Z" />
+        <path
+            android:fillColor="#66BB4A"
+            android:pathData="M55,70 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0 Z" />
+        <path
+            android:fillColor="#F5A623"
+            android:pathData="M44,48 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0 Z" />
+        <path
+            android:fillColor="#2CA9E1"
+            android:pathData="M56,48 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0 Z" />
+        <path
+            android:fillColor="#E8433A"
+            android:pathData="M44,60 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0 Z" />
+        <path
+            android:fillColor="#66BB4A"
+            android:pathData="M56,60 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0 Z" />
+    </group>
+
+    <!-- Franja de acento, evoca el trazo amarillo bajo el wordmark del logo -->
+    <path
+        android:fillColor="#F5A623"
+        android:pathData="M24,160 L296,160 L296,168 L24,168 Z" />
+
+</vector>

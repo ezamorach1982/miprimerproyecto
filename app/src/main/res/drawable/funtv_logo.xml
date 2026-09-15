@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Marca FunTV sin fondo, para usarse sobre superficies oscuras (login) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <path
+        android:fillColor="#F5A623"
+        android:pathData="M25,36 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0 Z" />
+    <path
+        android:fillColor="#2CA9E1"
+        android:pathData="M55,36 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0 Z" />
+    <path
+        android:fillColor="#E8433A"
+        android:pathData="M19,70 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0 Z" />
+    <path
+        android:fillColor="#66BB4A"
+        android:pathData="M55,70 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0 Z" />
+    <path
+        android:fillColor="#F5A623"
+        android:pathData="M44,48 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0 Z" />
+    <path
+        android:fillColor="#2CA9E1"
+        android:pathData="M56,48 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0 Z" />
+    <path
+        android:fillColor="#E8433A"
+        android:pathData="M44,60 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0 Z" />
+    <path
+        android:fillColor="#66BB4A"
+        android:pathData="M56,60 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0 Z" />
+
+</vector>

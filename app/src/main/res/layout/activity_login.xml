@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/funtv_background"
+    android:fillViewport="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="48dp">
+
+        <ImageView
+            android:id="@+id/imageLogo"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:layout_marginTop="24dp"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/funtv_logo"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/login_title"
+            android:textColor="@color/funtv_text_primary"
+            android:textSize="28sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/imageLogo" />
+
+        <TextView
+            android:id="@+id/textSubtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/login_subtitle"
+            android:textColor="@color/funtv_text_secondary"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textTitle" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineStart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.25" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineEnd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.75" />
+
+        <EditText
+            android:id="@+id/editServerUrl"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:autofillHints="url"
+            android:background="@drawable/bg_input_field"
+            android:hint="@string/login_hint_server"
+            android:imeOptions="actionNext"
+            android:inputType="textUri"
+            android:nextFocusDown="@id/editUsername"
+            android:padding="16dp"
+            android:singleLine="true"
+            android:textColor="@color/funtv_text_primary"
+            android:textColorHint="@color/funtv_text_secondary"
+            app:layout_constraintEnd_toStartOf="@id/guidelineEnd"
+            app:layout_constraintStart_toStartOf="@id/guidelineStart"
+            app:layout_constraintTop_toBottomOf="@id/textSubtitle" />
+
+        <EditText
+            android:id="@+id/editUsername"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:autofillHints="username"
+            android:background="@drawable/bg_input_field"
+            android:hint="@string/login_hint_username"
+            android:imeOptions="actionNext"
+            android:inputType="text"
+            android:nextFocusUp="@id/editServerUrl"
+            android:nextFocusDown="@id/editPassword"
+            android:padding="16dp"
+            android:singleLine="true"
+            android:textColor="@color/funtv_text_primary"
+            android:textColorHint="@color/funtv_text_secondary"
+            app:layout_constraintEnd_toStartOf="@id/guidelineEnd"
+            app:layout_constraintStart_toStartOf="@id/guidelineStart"
+            app:layout_constraintTop_toBottomOf="@id/editServerUrl" />
+
+        <EditText
+            android:id="@+id/editPassword"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:autofillHints="password"
+            android:background="@drawable/bg_input_field"
+            android:hint="@string/login_hint_password"
+            android:imeOptions="actionDone"
+            android:inputType="textPassword"
+            android:nextFocusUp="@id/editUsername"
+            android:nextFocusDown="@id/buttonConnect"
+            android:padding="16dp"
+            android:singleLine="true"
+            android:textColor="@color/funtv_text_primary"
+            android:textColorHint="@color/funtv_text_secondary"
+            app:layout_constraintEnd_toStartOf="@id/guidelineEnd"
+            app:layout_constraintStart_toStartOf="@id/guidelineStart"
+            app:layout_constraintTop_toBottomOf="@id/editUsername" />
+
+        <Button
+            android:id="@+id/buttonConnect"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:backgroundTint="@color/funtv_accent"
+            android:nextFocusUp="@id/editPassword"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp"
+            android:text="@string/login_button_connect"
+            android:textColor="@color/funtv_background"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@id/guidelineEnd"
+            app:layout_constraintStart_toStartOf="@id/guidelineStart"
+            app:layout_constraintTop_toBottomOf="@id/editPassword" />
+
+        <ProgressBar
+            android:id="@+id/progressLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:indeterminateTint="@color/funtv_accent"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/buttonConnect" />
+
+        <TextView
+            android:id="@+id/textError"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:textColor="@color/funtv_error"
+            android:textSize="14sp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toStartOf="@id/guidelineEnd"
+            app:layout_constraintStart_toStartOf="@id/guidelineStart"
+            app:layout_constraintTop_toBottomOf="@id/progressLogin"
+            tools:text="@string/login_error_invalid_credentials" />
+
+        <TextView
+            android:id="@+id/textExpiration"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="24dp"
+            android:gravity="center"
+            android:textColor="@color/funtv_text_secondary"
+            android:textSize="13sp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/guidelineEnd"
+            app:layout_constraintStart_toStartOf="@id/guidelineStart"
+            app:layout_constraintTop_toBottomOf="@id/textError"
+            tools:text="@string/login_expiration" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

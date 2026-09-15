@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Se usa mientras carga o si falla la carga del póster/logo de un canal, película o serie -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+
+    <path
+        android:fillColor="#1B1B22"
+        android:pathData="M0,0 h200 v200 h-200 Z" />
+
+    <group
+        android:translateX="46"
+        android:translateY="52"
+        android:scaleX="0.8"
+        android:scaleY="0.8">
+        <path
+            android:fillColor="#F5A623"
+            android:pathData="M25,36 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0 Z" />
+        <path
+            android:fillColor="#2CA9E1"
+            android:pathData="M55,36 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0 Z" />
+        <path
+            android:fillColor="#E8433A"
+            android:pathData="M19,70 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0 Z" />
+        <path
+            android:fillColor="#66BB4A"
+            android:pathData="M55,70 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0 Z" />
+    </group>
+
+</vector>

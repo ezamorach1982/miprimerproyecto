@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FunTV</string>
+
+    <!-- Login -->
+    <string name="login_title">FunTV Player</string>
+    <string name="login_subtitle">Ingresa los datos de tu servicio IPTV</string>
+    <string name="login_hint_server">URL del servidor (incluye puerto), ej: http://midominio.com:8080</string>
+    <string name="login_hint_username">Usuario</string>
+    <string name="login_hint_password">Contraseña</string>
+    <string name="login_button_connect">Conectar</string>
+    <string name="login_connecting">Conectando…</string>
+    <string name="login_error_empty_fields">Completa el usuario, la contraseña y la URL del servidor</string>
+    <string name="login_error_invalid_credentials">Usuario o contraseña incorrectos</string>
+    <string name="login_error_generic">No se pudo conectar con el servidor. Verifica la URL e inténtalo de nuevo</string>
+    <string name="login_expiration">Tu cuenta vence el %1$s</string>
+    <string name="login_no_expiration">Sin fecha de vencimiento (cuenta ilimitada)</string>
+
+    <!-- Home -->
+    <string name="home_title">FunTV</string>
+    <string name="header_live">TV en Vivo</string>
+    <string name="header_movies">Películas</string>
+    <string name="header_series">Series</string>
+    <string name="header_account">Cuenta</string>
+    <string name="action_logout">Cerrar sesión</string>
+    <string name="action_retry">Reintentar</string>
+    <string name="home_error_loading">No se pudo cargar el contenido. Selecciona reintentar</string>
+    <string name="home_empty_category">Sin contenido</string>
+
+    <!-- Detalle de serie -->
+    <string name="details_seasons_header">Temporada %1$d</string>
+    <string name="details_no_episodes">Esta temporada no tiene episodios disponibles</string>
+    <string name="details_loading_error">No se pudo cargar la información de la serie</string>
+
+    <!-- Reproductor -->
+    <string name="player_error_generic">Error de reproducción</string>
+    <string name="player_retrying">Reconectando… (intento %1$d de %2$d)</string>
+    <string name="player_retry_exhausted">No se pudo reanudar la transmisión</string>
+    <string name="player_manual_retry">Reintentar</string>
+    <string name="player_back">Volver</string>
+</resources>

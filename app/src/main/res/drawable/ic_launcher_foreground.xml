@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Interpretación vectorial simplificada del logo FunTV (cuatro figuras de color
+  dispuestas en molinillo alrededor de un núcleo de puntos multicolor). No es una
+  reproducción exacta del archivo original -no se pudo extraer el PNG fuente en
+  este entorno-, es una aproximación fiel a la paleta y composición. Para una
+  réplica pixel-perfect, reemplaza este archivo y tv_banner.xml por los assets
+  reales exportados del logo (ver README).
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Figura superior izquierda (dorado) -->
+    <path
+        android:fillColor="#F5A623"
+        android:pathData="M25,36 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0 Z" />
+
+    <!-- Figura superior derecha (azul) -->
+    <path
+        android:fillColor="#2CA9E1"
+        android:pathData="M55,36 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0 Z" />
+
+    <!-- Figura inferior izquierda (rojo) -->
+    <path
+        android:fillColor="#E8433A"
+        android:pathData="M19,70 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0 Z" />
+
+    <!-- Figura inferior derecha (verde) -->
+    <path
+        android:fillColor="#66BB4A"
+        android:pathData="M55,70 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0 Z" />
+
+    <!-- Núcleo central de puntos -->
+    <path
+        android:fillColor="#F5A623"
+        android:pathData="M44,48 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0 Z" />
+    <path
+        android:fillColor="#2CA9E1"
+        android:pathData="M56,48 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0 Z" />
+    <path
+        android:fillColor="#E8433A"
+        android:pathData="M44,60 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0 Z" />
+    <path
+        android:fillColor="#66BB4A"
+        android:pathData="M56,60 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0 Z" />
+
+</vector>

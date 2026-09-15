@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Paleta de marca FunTV, tomada del logo -->
+    <color name="funtv_red">#E8433A</color>
+    <color name="funtv_blue">#2CA9E1</color>
+    <color name="funtv_green">#66BB4A</color>
+    <color name="funtv_yellow">#F5A623</color>
+
+    <color name="funtv_background">#0D0D12</color>
+    <color name="funtv_surface">#1B1B22</color>
+    <color name="funtv_surface_focused">#2A2A34</color>
+
+    <color name="funtv_text_primary">#FFFFFF</color>
+    <color name="funtv_text_secondary">#AFAFBC</color>
+    <color name="funtv_error">#FF5252</color>
+
+    <color name="funtv_accent">@color/funtv_yellow</color>
+</resources>

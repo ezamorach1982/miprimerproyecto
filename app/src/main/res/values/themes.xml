@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Login: layout propio (no Leanback), basado en AppCompat -->
+    <style name="Theme.FunTV.Login" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">@color/funtv_surface</item>
+        <item name="colorPrimaryDark">@color/funtv_background</item>
+        <item name="colorAccent">@color/funtv_accent</item>
+        <item name="android:windowBackground">@color/funtv_background</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
+    <!-- Home / detalle: usan BrowseSupportFragment / RowsSupportFragment de Leanback,
+         que requieren un tema descendiente de Theme.Leanback -->
+    <style name="Theme.FunTV.Browse" parent="Theme.Leanback">
+        <item name="browseErrorColor">@color/funtv_error</item>
+        <item name="defaultBrandColor">@color/funtv_background</item>
+        <item name="defaultBrandColorDark">@color/funtv_background</item>
+        <item name="defaultSearchColor">@color/funtv_surface</item>
+        <item name="defaultSearchIconColor">@color/funtv_accent</item>
+        <item name="android:windowBackground">@color/funtv_background</item>
+    </style>
+
+    <!-- Reproductor: pantalla completa, sin barras -->
+    <style name="Theme.FunTV.Player" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
+</resources>
