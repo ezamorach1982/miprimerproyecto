@@ -139,15 +139,27 @@ confiable es usar el asistente de Android Studio con tu archivo real:
 
 ## Roadmap priorizado
 
-Funciones evaluadas de la lista de referencia que compartiste, con su factibilidad:
-
-**Fáciles de sumar en una próxima iteración** (sin dependencias nuevas bloqueadas):
-- Favoritos (marcar canales/pelis/series).
-- Búsqueda global (`SearchSupportFragment` de Leanback).
-- Perfiles simples + PIN de control parental (almacenamiento local, sin backend).
-- Selector de tema de color (variantes de la paleta ya definida en `colors.xml`).
-- EPG básico si tu panel expone `get_short_epg`/`get_simple_data_table`.
+**Ya implementado:**
+- Favoritos: mantén presionado OK/Aceptar sobre una tarjeta de canal/película/serie
+  para marcarla o desmarcarla; aparecen en una fila "Favoritos" en el inicio.
+- Búsqueda global (`ui/search`): filtra por nombre sobre el catálogo ya cacheado
+  localmente (visita cada sección al menos una vez para que haya algo que buscar).
 - Splash screen animado de arranque.
+- Ficha "Cuenta" con servidor/usuario/vencimiento, versión de la app y cierre de
+  sesión explícito (antes la tarjeta "Cuenta" cerraba sesión directo).
+- Ficha de detalle de película, barra de progreso, fila "Continuar viendo",
+  autoplay del siguiente episodio, zapping de canal con DPAD arriba/abajo dentro
+  del reproductor, y detección de sesión vencida (redirige a Login con aviso en
+  vez de mostrar un error de conexión genérico).
+
+**Evaluadas y dejadas fuera por ahora** (con la razón):
+- **EPG "en vivo ahora" en las tarjetas de canales**: pedir la programación de
+  cada canal visible multiplicaría las peticiones al panel — contradice el
+  trabajo de estabilidad de la Fase 0. Se puede hacer bien (cargar solo para las
+  tarjetas realmente visibles), pero es un diseño aparte, no un añadido rápido.
+- Perfiles + PIN de control parental, multi-cuenta/multi-servidor, certificados
+  HTTPS autofirmados, selector de tema de color: quedan pendientes, no por
+  riesgo sino por alcance — cada uno es una función completa en sí misma.
 
 **Factibles pero de mayor alcance** (varias pantallas/lógica nueva):
 - Descargas para ver sin internet (requiere gestión de almacenamiento, cola de

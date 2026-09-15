@@ -13,24 +13,26 @@ import androidx.leanback.widget.OnItemViewClickedListener
 import androidx.leanback.widget.Presenter
 import androidx.leanback.widget.Row
 import androidx.leanback.widget.RowPresenter
-import androidx.lifecycle.lifecycleScope
 import com.funtv.player.R
+import com.funtv.player.data.api.StreamUrlBuilder
 import com.funtv.player.data.model.XtreamSession
 import com.funtv.player.data.prefs.ContinueWatchingEntry
+import com.funtv.player.data.prefs.FavoriteEntry
+import com.funtv.player.data.prefs.FavoriteType
 import com.funtv.player.ui.browse.ContentType
 import com.funtv.player.ui.browse.SectionBrowseActivity
+import com.funtv.player.ui.details.SeriesDetailsActivity
+import com.funtv.player.ui.details.VodDetailsActivity
 import com.funtv.player.ui.login.LoginActivity
 import com.funtv.player.ui.player.PlaybackActivity
+import com.funtv.player.ui.search.SearchActivity
 import com.funtv.player.util.funTvApp
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
- * Pantalla de inicio: fila "Continuar viendo" (si hay algo pendiente) + 4 tarjetas
- * grandes (TV en Vivo, Películas, Series, Cuenta). Cada sección abre su propia
- * pantalla con sus categorías —así no se mezclan canales, películas y series en
- * una sola lista.
+ * Pantalla de inicio: filas "Continuar viendo" y "Favoritos" (si hay algo) + las
+ * tarjetas grandes de sección (TV en Vivo, Películas, Series, Buscar, Cuenta).
+ * Cada sección abre su propia pantalla con sus categorías —así no se mezclan
+ * canales, películas y series en una sola lista.
  */
 class MainFragment : BrowseSupportFragment() {
 
@@ -58,27 +60,40 @@ class MainFragment : BrowseSupportFragment() {
         }
     }
 
-    private fun session(): XtreamSession? = requireContext().funTvApp().sessionManager.getSession()
+    private fun app() = requireContext().funTvApp()
+
+    private fun session(): XtreamSession? = app().sessionManager.getSession()
 
     private fun buildRows() {
         rowsAdapter.clear()
         addContinueWatchingRowIfAny()
+        addFavoritesRowIfAny()
 
         val header = HeaderItem(getString(R.string.landing_header))
         val itemsAdapter = ArrayObjectAdapter(LandingPresenter())
         itemsAdapter.add(LandingItem.LiveTv)
         itemsAdapter.add(LandingItem.Movies)
         itemsAdapter.add(LandingItem.Series)
+        itemsAdapter.add(LandingItem.Search)
         itemsAdapter.add(LandingItem.Account)
         rowsAdapter.add(ListRow(header, itemsAdapter))
     }
 
     private fun addContinueWatchingRowIfAny() {
-        val entries = requireContext().funTvApp().playbackPositionManager.getContinueWatching()
+        val entries = app().playbackPositionManager.getContinueWatching()
         if (entries.isEmpty()) return
         val header = HeaderItem(getString(R.string.continue_watching_header))
         val itemsAdapter = ArrayObjectAdapter(cardPresenter)
         entries.forEach { itemsAdapter.add(HomeCardItem.ContinueWatchingCard(it)) }
+        rowsAdapter.add(ListRow(header, itemsAdapter))
+    }
+
+    private fun addFavoritesRowIfAny() {
+        val favorites = app().favoritesManager.getFavorites()
+        if (favorites.isEmpty()) return
+        val header = HeaderItem(getString(R.string.favorites_header))
+        val itemsAdapter = ArrayObjectAdapter(cardPresenter)
+        favorites.forEach { itemsAdapter.add(HomeCardItem.FavoriteCard(it)) }
         rowsAdapter.add(ListRow(header, itemsAdapter))
     }
 
@@ -92,14 +107,21 @@ class MainFragment : BrowseSupportFragment() {
         )
     }
 
-    private fun logout() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            withContext(Dispatchers.IO) {
-                val app = requireContext().funTvApp()
-                app.sessionManager.clearSession()
-                app.catalogCache.clear()
+    private fun openFavorite(entry: FavoriteEntry) {
+        when (entry.type) {
+            FavoriteType.LIVE -> {
+                val session = session() ?: return
+                val url = StreamUrlBuilder.liveUrl(session, entry.id)
+                startActivity(PlaybackActivity.newIntent(requireContext(), url, entry.title, isLive = true))
             }
-            goToLogin()
+            FavoriteType.VOD -> {
+                startActivity(
+                    VodDetailsActivity.newIntent(requireContext(), entry.id, entry.title, entry.posterUrl, entry.containerExtension)
+                )
+            }
+            FavoriteType.SERIES -> {
+                startActivity(SeriesDetailsActivity.newIntent(requireContext(), entry.id, entry.title))
+            }
         }
     }
 
@@ -121,8 +143,10 @@ class MainFragment : BrowseSupportFragment() {
                 is LandingItem.LiveTv -> openSection(ContentType.LIVE)
                 is LandingItem.Movies -> openSection(ContentType.VOD)
                 is LandingItem.Series -> openSection(ContentType.SERIES)
-                is LandingItem.Account -> logout()
+                is LandingItem.Search -> startActivity(SearchActivity.newIntent(requireContext()))
+                is LandingItem.Account -> startActivity(AccountActivity.newIntent(requireContext()))
                 is HomeCardItem.ContinueWatchingCard -> resumeWatching(item.entry)
+                is HomeCardItem.FavoriteCard -> openFavorite(item.entry)
             }
         }
     }

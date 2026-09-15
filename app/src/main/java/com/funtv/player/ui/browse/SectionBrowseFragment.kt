@@ -14,8 +14,10 @@ import androidx.leanback.widget.Presenter
 import androidx.leanback.widget.Row
 import androidx.leanback.widget.RowPresenter
 import androidx.lifecycle.lifecycleScope
+import android.content.Intent
 import com.funtv.player.R
 import com.funtv.player.data.api.StreamUrlBuilder
+import com.funtv.player.data.api.XtreamSessionExpiredException
 import com.funtv.player.data.cache.LiveCacheEntry
 import com.funtv.player.data.cache.SeriesCacheEntry
 import com.funtv.player.data.cache.VodCacheEntry
@@ -23,6 +25,7 @@ import com.funtv.player.data.model.Category
 import com.funtv.player.data.model.XtreamSession
 import com.funtv.player.ui.details.SeriesDetailsActivity
 import com.funtv.player.ui.details.VodDetailsActivity
+import com.funtv.player.ui.login.LoginActivity
 import com.funtv.player.ui.main.CardPresenter
 import com.funtv.player.ui.main.HomeCardItem
 import com.funtv.player.ui.player.PlaybackActivity
@@ -74,6 +77,29 @@ class SectionBrowseFragment : BrowseSupportFragment() {
         loadContent()
     }
 
+    /** Permite cambiar de canal con DPAD arriba/abajo dentro del reproductor, sin salir de él. */
+    private fun setUpZapList(row: Row, clicked: HomeCardItem.Live) {
+        val listRow = row as? ListRow ?: return
+        val itemsAdapter = listRow.adapter as? ArrayObjectAdapter ?: return
+        val liveStreams = (0 until itemsAdapter.size()).mapNotNull { index ->
+            (itemsAdapter.get(index) as? HomeCardItem.Live)?.stream
+        }
+        val clickedIndex = liveStreams.indexOfFirst { it.streamId == clicked.stream.streamId }
+        app().liveZapList = liveStreams
+        app().liveZapIndex = clickedIndex
+    }
+
+    private fun goToLoginDueToExpiredSession() {
+        if (!isAdded) return
+        app().sessionManager.clearSession()
+        app().catalogCache.clear()
+        Toast.makeText(requireContext(), R.string.session_expired, Toast.LENGTH_LONG).show()
+        val intent = Intent(requireContext(), LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        requireActivity().finish()
+    }
+
     private fun openCategoryGrid(category: Category) {
         startActivity(
             CategoryGridActivity.newIntent(requireContext(), contentType, category.categoryId, category.categoryName)
@@ -106,6 +132,10 @@ class SectionBrowseFragment : BrowseSupportFragment() {
 
             val categories = try {
                 fetchCategories(session)
+            } catch (e: XtreamSessionExpiredException) {
+                progressBarManager.hide()
+                goToLoginDueToExpiredSession()
+                return@launch
             } catch (e: Exception) {
                 null
             }
@@ -253,6 +283,7 @@ class SectionBrowseFragment : BrowseSupportFragment() {
             val session = session() ?: return
             when (item) {
                 is HomeCardItem.Live -> {
+                    setUpZapList(row, item)
                     val url = StreamUrlBuilder.liveUrl(session, item.stream.streamId)
                     startActivity(
                         PlaybackActivity.newIntent(requireContext(), url, item.stream.name.orEmpty(), isLive = true)

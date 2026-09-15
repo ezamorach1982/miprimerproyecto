@@ -5,6 +5,7 @@ import com.funtv.player.data.model.LiveStream
 import com.funtv.player.data.model.Series
 import com.funtv.player.data.model.VodStream
 import com.funtv.player.data.prefs.ContinueWatchingEntry
+import com.funtv.player.data.prefs.FavoriteEntry
 
 /** Envuelve cada tipo de contenido que puede aparecer como tarjeta dentro de una sección. */
 sealed class HomeCardItem {
@@ -18,4 +19,7 @@ sealed class HomeCardItem {
 
     /** Tarjeta de la fila "Continuar viendo" del inicio: retoma la reproducción directo, sin pasar por la ficha. */
     data class ContinueWatchingCard(val entry: ContinueWatchingEntry) : HomeCardItem()
+
+    /** Tarjeta de la fila "Favoritos" del inicio. */
+    data class FavoriteCard(val entry: FavoriteEntry) : HomeCardItem()
 }

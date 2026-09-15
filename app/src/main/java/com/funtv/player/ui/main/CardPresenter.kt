@@ -1,15 +1,20 @@
 package com.funtv.player.ui.main
 
+import android.content.Context
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.leanback.widget.ImageCardView
 import androidx.leanback.widget.Presenter
 import coil.load
 import com.funtv.player.R
 import com.funtv.player.data.api.StreamUrlBuilder
+import com.funtv.player.data.prefs.FavoriteEntry
+import com.funtv.player.data.prefs.FavoriteType
+import com.funtv.player.data.prefs.FavoritesManager
 import com.funtv.player.util.funTvApp
 
 class CardPresenter : Presenter() {
@@ -82,6 +87,25 @@ class CardPresenter : Presenter() {
                 val progress = if (entry.durationMs > 0) entry.positionMs.toFloat() / entry.durationMs else 0f
                 applyProgress(holder.progressView, progress)
             }
+            is HomeCardItem.FavoriteCard -> {
+                val entry = item.entry
+                cardView.titleText = entry.title
+                cardView.contentText = typeLabel(context, entry.type)
+                loadImage(cardView, entry.posterUrl)
+                applyProgress(holder.progressView, 0f)
+            }
+        }
+
+        // Mantener presionada una tarjeta de contenido la marca/desmarca como favorita.
+        val favoriteEntry = favoriteEntryFor(item)
+        cardView.setOnLongClickListener {
+            val nowFavorite = context.funTvApp().favoritesManager.toggle(favoriteEntry ?: return@setOnLongClickListener false)
+            Toast.makeText(
+                context,
+                if (nowFavorite) R.string.favorite_added else R.string.favorite_removed,
+                Toast.LENGTH_SHORT
+            ).show()
+            true
         }
     }
 
@@ -92,7 +116,40 @@ class CardPresenter : Presenter() {
         applyProgress(holder.progressView, 0f)
     }
 
-    private fun vodProgress(context: android.content.Context, item: HomeCardItem.Vod): Float {
+    private fun typeLabel(context: Context, type: FavoriteType): String = when (type) {
+        FavoriteType.LIVE -> context.getString(R.string.header_live)
+        FavoriteType.VOD -> context.getString(R.string.header_movies)
+        FavoriteType.SERIES -> context.getString(R.string.header_series)
+    }
+
+    private fun favoriteEntryFor(item: Any): FavoriteEntry? = when (item) {
+        is HomeCardItem.Live -> FavoriteEntry(
+            key = FavoritesManager.keyFor(FavoriteType.LIVE, item.stream.streamId),
+            type = FavoriteType.LIVE,
+            id = item.stream.streamId,
+            title = item.stream.name.orEmpty(),
+            posterUrl = item.stream.streamIcon
+        )
+        is HomeCardItem.Vod -> FavoriteEntry(
+            key = FavoritesManager.keyFor(FavoriteType.VOD, item.stream.streamId),
+            type = FavoriteType.VOD,
+            id = item.stream.streamId,
+            title = item.stream.name.orEmpty(),
+            posterUrl = item.stream.streamIcon,
+            containerExtension = item.stream.containerExtension
+        )
+        is HomeCardItem.SeriesItem -> FavoriteEntry(
+            key = FavoritesManager.keyFor(FavoriteType.SERIES, item.series.seriesId),
+            type = FavoriteType.SERIES,
+            id = item.series.seriesId,
+            title = item.series.name.orEmpty(),
+            posterUrl = item.series.cover
+        )
+        is HomeCardItem.FavoriteCard -> item.entry
+        else -> null
+    }
+
+    private fun vodProgress(context: Context, item: HomeCardItem.Vod): Float {
         val app = context.funTvApp()
         val session = app.sessionManager.getSession() ?: return 0f
         val url = StreamUrlBuilder.vodUrl(session, item.stream.streamId, item.stream.containerExtension)

@@ -6,6 +6,8 @@ import coil.ImageLoader
 import coil.disk.DiskCache
 import com.funtv.player.data.api.XtreamClient
 import com.funtv.player.data.cache.CatalogCache
+import com.funtv.player.data.model.LiveStream
+import com.funtv.player.data.prefs.FavoritesManager
 import com.funtv.player.data.prefs.PlaybackPositionManager
 import com.funtv.player.data.prefs.SessionManager
 import okhttp3.OkHttpClient
@@ -33,6 +35,17 @@ class FunTvApplication : Application() {
     val playbackPositionManager: PlaybackPositionManager by lazy { PlaybackPositionManager(this) }
 
     val catalogCache: CatalogCache by lazy { CatalogCache(this) }
+
+    val favoritesManager: FavoritesManager by lazy { FavoritesManager(this) }
+
+    /**
+     * Lista de canales "en zapping": la sección/categoría desde la que se abrió el
+     * canal en vivo que se está reproduciendo, para poder cambiar de canal con
+     * DPAD arriba/abajo sin salir del reproductor. Solo en memoria (no persiste),
+     * la fija la pantalla de origen justo antes de abrir PlaybackActivity.
+     */
+    var liveZapList: List<LiveStream> = emptyList()
+    var liveZapIndex: Int = -1
 
     override fun onCreate() {
         super.onCreate()

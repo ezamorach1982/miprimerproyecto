@@ -26,7 +26,10 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 /** Error de negocio o de red al hablar con el panel Xtream Codes; el mensaje ya está listo para mostrarse al usuario. */
-class XtreamException(message: String, cause: Throwable? = null) : Exception(message, cause)
+open class XtreamException(message: String, cause: Throwable? = null) : Exception(message, cause)
+
+/** La sesión guardada ya no es válida (cuenta vencida, contraseña cambiada, etc.): hay que volver a Login. */
+class XtreamSessionExpiredException : XtreamException("La sesión ya no es válida, inicia sesión de nuevo")
 
 /**
  * Cliente ligero del API Xtream Codes (player_api.php) sobre OkHttp + Gson.
@@ -94,13 +97,24 @@ class XtreamClient(
     private inline fun <reified T> parseArray(json: String): List<T> {
         val trimmed = json.trim()
         // Algunos paneles Xtream devuelven `{}` en vez de `[]` para una lista vacía.
-        if (!trimmed.startsWith("[")) return emptyList()
+        if (!trimmed.startsWith("[")) {
+            if (looksLikeExpiredSession(trimmed)) throw XtreamSessionExpiredException()
+            return emptyList()
+        }
         val type = TypeToken.getParameterized(List::class.java, T::class.java).type
         return try {
             gson.fromJson<List<T>>(trimmed, type) ?: emptyList()
         } catch (e: Exception) {
             throw XtreamException("El servidor respondió con un formato inesperado", e)
         }
+    }
+
+    /** Cuando la sesión ya no es válida, el panel suele devolver el mismo objeto de login con auth=0 en vez de la lista pedida. */
+    private fun looksLikeExpiredSession(json: String): Boolean = try {
+        val obj = JsonParser.parseString(json).asJsonObject
+        obj.getAsJsonObject("user_info")?.get("auth")?.asInt == 0
+    } catch (e: Exception) {
+        false
     }
 
     private fun parseSeriesInfo(json: String): SeriesInfoResponse {

@@ -1,7 +1,9 @@
 package com.funtv.player.ui.browse
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.leanback.app.VerticalGridSupportFragment
 import androidx.leanback.widget.ArrayObjectAdapter
 import androidx.leanback.widget.OnItemViewClickedListener
@@ -10,10 +12,13 @@ import androidx.leanback.widget.Row
 import androidx.leanback.widget.RowPresenter
 import androidx.leanback.widget.VerticalGridPresenter
 import androidx.lifecycle.lifecycleScope
+import com.funtv.player.R
 import com.funtv.player.data.api.StreamUrlBuilder
+import com.funtv.player.data.api.XtreamSessionExpiredException
 import com.funtv.player.data.model.XtreamSession
 import com.funtv.player.ui.details.SeriesDetailsActivity
 import com.funtv.player.ui.details.VodDetailsActivity
+import com.funtv.player.ui.login.LoginActivity
 import com.funtv.player.ui.main.CardPresenter
 import com.funtv.player.ui.main.HomeCardItem
 import com.funtv.player.ui.player.PlaybackActivity
@@ -68,6 +73,10 @@ class CategoryGridFragment : VerticalGridSupportFragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             val fresh = try {
                 withContext(Dispatchers.IO) { fetchItems(session) }
+            } catch (e: XtreamSessionExpiredException) {
+                progressBarManager.hide()
+                goToLoginDueToExpiredSession()
+                return@launch
             } catch (e: Exception) {
                 null
             }
@@ -77,6 +86,17 @@ class CategoryGridFragment : VerticalGridSupportFragment() {
                 itemsAdapter.addAll(0, fresh)
             }
         }
+    }
+
+    private fun goToLoginDueToExpiredSession() {
+        if (!isAdded) return
+        app().sessionManager.clearSession()
+        app().catalogCache.clear()
+        Toast.makeText(requireContext(), R.string.session_expired, Toast.LENGTH_LONG).show()
+        val intent = Intent(requireContext(), LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        requireActivity().finish()
     }
 
     private suspend fun fetchItems(session: XtreamSession): List<HomeCardItem> = when (contentType) {
@@ -104,6 +124,12 @@ class CategoryGridFragment : VerticalGridSupportFragment() {
             val session = session() ?: return
             when (item) {
                 is HomeCardItem.Live -> {
+                    val liveStreams = (0 until itemsAdapter.size()).mapNotNull { index ->
+                        (itemsAdapter.get(index) as? HomeCardItem.Live)?.stream
+                    }
+                    app().liveZapList = liveStreams
+                    app().liveZapIndex = liveStreams.indexOfFirst { it.streamId == item.stream.streamId }
+
                     val url = StreamUrlBuilder.liveUrl(session, item.stream.streamId)
                     startActivity(
                         PlaybackActivity.newIntent(requireContext(), url, item.stream.name.orEmpty(), isLive = true)

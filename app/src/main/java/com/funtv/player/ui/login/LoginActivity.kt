@@ -61,8 +61,9 @@ class LoginActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val (session, response) = funTvApp().xtreamClient.login(serverUrl, username, password)
-                withContext(Dispatchers.IO) { funTvApp().sessionManager.saveSession(session) }
-                showExpiration(response.userInfo?.expDate)
+                val expDate = response.userInfo?.expDate
+                withContext(Dispatchers.IO) { funTvApp().sessionManager.saveSession(session, expDate) }
+                showExpiration(expDate)
                 delay(1200)
                 goToHome()
             } catch (e: XtreamException) {

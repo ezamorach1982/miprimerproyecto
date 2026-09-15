@@ -14,6 +14,7 @@ import androidx.leanback.widget.RowPresenter
 import com.funtv.player.data.api.StreamUrlBuilder
 import com.funtv.player.data.model.Episode
 import com.funtv.player.data.model.SeriesInfoResponse
+import com.funtv.player.data.model.XtreamSession
 import com.funtv.player.ui.player.PlaybackActivity
 import com.funtv.player.util.funTvApp
 
@@ -22,6 +23,7 @@ class SeasonsRowsFragment : RowsSupportFragment() {
 
     private val rowsAdapter = ArrayObjectAdapter(ListRowPresenter())
     private val episodePresenter = EpisodePresenter()
+    private var seriesInfo: SeriesInfoResponse? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -30,6 +32,7 @@ class SeasonsRowsFragment : RowsSupportFragment() {
     }
 
     fun submitSeriesInfo(info: SeriesInfoResponse) {
+        seriesInfo = info
         rowsAdapter.clear()
         info.seasons.sortedBy { it.seasonNumber }.forEach { season ->
             val episodes = info.episodesBySeason[season.seasonNumber].orEmpty()
@@ -41,6 +44,22 @@ class SeasonsRowsFragment : RowsSupportFragment() {
         }
     }
 
+    /** Busca el episodio que sigue al dado: el siguiente en la misma temporada o, si es el último, el primero de la siguiente temporada con episodios. */
+    private fun findNextEpisode(current: Episode): Episode? {
+        val info = seriesInfo ?: return null
+        val season = current.season ?: 0
+        val sameSeasonEpisodes = info.episodesBySeason[season]?.sortedBy { it.episodeNum ?: 0 } ?: return null
+        val currentIndex = sameSeasonEpisodes.indexOfFirst { it.id == current.id }
+        if (currentIndex == -1) return null
+        if (currentIndex + 1 < sameSeasonEpisodes.size) return sameSeasonEpisodes[currentIndex + 1]
+
+        val nextSeasonNumber = info.episodesBySeason.keys.filter { it > season }.minOrNull() ?: return null
+        return info.episodesBySeason[nextSeasonNumber]?.sortedBy { it.episodeNum ?: 0 }?.firstOrNull()
+    }
+
+    private fun episodeUrl(session: XtreamSession, episode: Episode): String =
+        StreamUrlBuilder.seriesEpisodeUrl(session, episode.id, episode.containerExtension)
+
     private inner class ItemClickedListener : OnItemViewClickedListener {
         override fun onItemClicked(
             itemViewHolder: Presenter.ViewHolder,
@@ -50,13 +69,16 @@ class SeasonsRowsFragment : RowsSupportFragment() {
         ) {
             val episode = item as? Episode ?: return
             val session = requireContext().funTvApp().sessionManager.getSession() ?: return
-            val url = StreamUrlBuilder.seriesEpisodeUrl(session, episode.id, episode.containerExtension)
+            val next = findNextEpisode(episode)
             startActivity(
                 PlaybackActivity.newIntent(
                     requireContext(),
-                    url,
+                    episodeUrl(session, episode),
                     episode.title.orEmpty(),
-                    posterUrl = episode.info?.movieImage
+                    posterUrl = episode.info?.movieImage,
+                    nextUrl = next?.let { episodeUrl(session, it) },
+                    nextTitle = next?.title,
+                    nextPosterUrl = next?.info?.movieImage
                 )
             )
         }

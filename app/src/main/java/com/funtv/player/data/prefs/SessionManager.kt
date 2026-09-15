@@ -17,11 +17,12 @@ class SessionManager(context: Context) {
     private val prefs = context.applicationContext
         .getSharedPreferences(PREFS_FILE, Context.MODE_PRIVATE)
 
-    fun saveSession(session: XtreamSession) {
+    fun saveSession(session: XtreamSession, expDate: String? = null) {
         prefs.edit()
             .putString(KEY_SERVER, session.baseUrl)
             .putString(KEY_USERNAME, session.username)
             .putString(KEY_PASSWORD, session.password)
+            .putString(KEY_EXP_DATE, expDate)
             .apply()
     }
 
@@ -32,6 +33,9 @@ class SessionManager(context: Context) {
         return XtreamSession(server, username, password)
     }
 
+    /** Timestamp Unix (segundos) de vencimiento de la cuenta, tal como lo envió el panel en el último login. */
+    fun getExpirationDate(): String? = prefs.getString(KEY_EXP_DATE, null)
+
     fun clearSession() {
         prefs.edit().clear().apply()
     }
@@ -41,5 +45,6 @@ class SessionManager(context: Context) {
         private const val KEY_SERVER = "server_url"
         private const val KEY_USERNAME = "username"
         private const val KEY_PASSWORD = "password"
+        private const val KEY_EXP_DATE = "exp_date"
     }
 }
