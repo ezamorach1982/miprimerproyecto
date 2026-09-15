@@ -71,7 +71,11 @@ class MainFragment : BrowseSupportFragment() {
 
     private fun logout() {
         viewLifecycleOwner.lifecycleScope.launch {
-            withContext(Dispatchers.IO) { requireContext().funTvApp().sessionManager.clearSession() }
+            withContext(Dispatchers.IO) {
+                val app = requireContext().funTvApp()
+                app.sessionManager.clearSession()
+                app.catalogCache.clear()
+            }
             goToLogin()
         }
     }

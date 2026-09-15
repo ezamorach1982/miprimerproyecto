@@ -12,6 +12,7 @@ import androidx.media3.common.Player
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.exoplayer.upstream.DefaultLoadErrorHandlingPolicy
 import com.funtv.player.R
 import com.funtv.player.data.prefs.PlaybackPositionManager
 import com.funtv.player.databinding.ActivityPlaybackBinding
@@ -22,9 +23,17 @@ import kotlinx.coroutines.launch
 
 /**
  * Reproduce streams en vivo (HLS), VOD y episodios de serie (HLS o MP4 progresivo)
- * con ExoPlayer (Media3). Ante un error de conexión, reintenta automáticamente con
- * espera creciente, retomando desde el punto donde se cortó (no desde el inicio),
- * antes de mostrar el error definitivo con opción de reintento manual.
+ * con ExoPlayer (Media3).
+ *
+ * Resiliencia en dos capas:
+ *  1. ExoPlayer reintenta internamente la carga de cada segmento varias veces
+ *     (DefaultLoadErrorHandlingPolicy) antes de considerar el error fatal — un
+ *     corte breve de red se absorbe como buffering normal, sin que el usuario
+ *     vea "reconectando".
+ *  2. Si el error sí es fatal, esta Activity reintenta reutilizando la MISMA
+ *     instancia de ExoPlayer (seekTo + prepare) en vez de destruirla y crear
+ *     una nueva — recupera más rápido, sin reinicializar el decodificador de
+ *     hardware — con espera creciente y retomando desde donde se cortó.
  *
  * Para películas y episodios (no TV en vivo) recuerda la posición de reproducción
  * ("continuar viendo"): la guarda cada pocos segundos y la retoma la próxima vez
@@ -38,7 +47,7 @@ class PlaybackActivity : AppCompatActivity() {
     private var positionSaveJob: Job? = null
     private var retryCount = 0
 
-    /** Punto desde el que debe arrancar la próxima vez que se llame a preparePlayer(): al abrir, la posición guardada; tras un corte, donde quedó. */
+    /** Punto desde el que debe arrancar la próxima vez que se prepare: al abrir, la posición guardada; tras un corte, donde quedó. */
     private var startPositionMs: Long = 0L
 
     private val streamUrl: String by lazy { intent.getStringExtra(EXTRA_URL).orEmpty() }
@@ -53,7 +62,7 @@ class PlaybackActivity : AppCompatActivity() {
         binding.buttonManualRetry.setOnClickListener {
             retryCount = 0
             hideError()
-            preparePlayer()
+            retryOrStart()
         }
         binding.buttonBack.setOnClickListener { finish() }
 
@@ -66,23 +75,26 @@ class PlaybackActivity : AppCompatActivity() {
             }
         }
 
-        preparePlayer()
-    }
-
-    private fun preparePlayer() {
         if (streamUrl.isBlank()) {
             showError(getString(R.string.player_error_generic))
-            return
+        } else {
+            buildPlayer()
         }
-        releasePlayer()
+    }
 
+    /** Solo se llama una vez: crea la instancia de ExoPlayer y arranca la reproducción. */
+    private fun buildPlayer() {
         val dataSourceFactory = DefaultHttpDataSource.Factory()
             .setUserAgent("FunTV/1.0 (Linux;Android)")
             .setAllowCrossProtocolRedirects(true)
             .setConnectTimeoutMs(15000)
             .setReadTimeoutMs(15000)
 
+        // Deja que ExoPlayer reintente varias veces la carga de un segmento antes
+        // de escalar a onPlayerError; absorbe cortes breves como buffering normal.
+        val loadErrorHandlingPolicy = DefaultLoadErrorHandlingPolicy(SEGMENT_RETRY_COUNT)
         val mediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory)
+            .setLoadErrorHandlingPolicy(loadErrorHandlingPolicy)
 
         val exoPlayer = ExoPlayer.Builder(this)
             .setMediaSourceFactory(mediaSourceFactory)
@@ -105,7 +117,6 @@ class PlaybackActivity : AppCompatActivity() {
             }
 
             override fun onPlayerError(error: PlaybackException) {
-                // Recuerda dónde iba para que el reintento no arranque desde cero.
                 startPositionMs = player?.currentPosition ?: startPositionMs
                 handlePlaybackError()
             }
@@ -121,6 +132,20 @@ class PlaybackActivity : AppCompatActivity() {
         player = exoPlayer
     }
 
+    /** Reintento (automático o manual): reusa la instancia existente si la hay, en vez de recrearla. */
+    private fun retryOrStart() {
+        val existingPlayer = player
+        if (existingPlayer == null) {
+            buildPlayer()
+            return
+        }
+        if (startPositionMs > 0) {
+            existingPlayer.seekTo(startPositionMs)
+        }
+        existingPlayer.playWhenReady = true
+        existingPlayer.prepare()
+    }
+
     private fun handlePlaybackError() {
         if (retryCount >= MAX_RETRIES) {
             showError(getString(R.string.player_retry_exhausted))
@@ -132,7 +157,7 @@ class PlaybackActivity : AppCompatActivity() {
         retryJob = lifecycleScope.launch {
             delay(RETRY_DELAY_MS * retryCount)
             hideError()
-            preparePlayer()
+            retryOrStart()
         }
     }
 
@@ -194,6 +219,7 @@ class PlaybackActivity : AppCompatActivity() {
         private const val MAX_RETRIES = 5
         private const val RETRY_DELAY_MS = 2000L
         private const val POSITION_SAVE_INTERVAL_MS = 5000L
+        private const val SEGMENT_RETRY_COUNT = 6
 
         fun newIntent(context: Context, url: String, title: String, isLive: Boolean = false): Intent =
             Intent(context, PlaybackActivity::class.java)

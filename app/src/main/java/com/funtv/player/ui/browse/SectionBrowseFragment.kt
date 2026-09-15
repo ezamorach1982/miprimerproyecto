@@ -1,6 +1,5 @@
 package com.funtv.player.ui.browse
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -17,6 +16,9 @@ import androidx.leanback.widget.RowPresenter
 import androidx.lifecycle.lifecycleScope
 import com.funtv.player.R
 import com.funtv.player.data.api.StreamUrlBuilder
+import com.funtv.player.data.cache.LiveCacheEntry
+import com.funtv.player.data.cache.SeriesCacheEntry
+import com.funtv.player.data.cache.VodCacheEntry
 import com.funtv.player.data.model.Category
 import com.funtv.player.data.model.XtreamSession
 import com.funtv.player.ui.details.SeriesDetailsActivity
@@ -25,18 +27,23 @@ import com.funtv.player.ui.main.HomeCardItem
 import com.funtv.player.ui.player.PlaybackActivity
 import com.funtv.player.util.funTvApp
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
+import kotlinx.coroutines.withContext
 
 /**
  * Muestra las categorías y el contenido de UNA sola sección (TV en Vivo, Películas
  * o Series), como filas de Leanback. Evita mezclar los tres tipos en una sola
- * pantalla y, de paso, solo pide al panel los datos de la sección que el usuario
- * realmente abrió (antes se cargaba todo de una vez al entrar al Home).
+ * pantalla y solo pide al panel los datos de la sección que el usuario abrió.
+ *
+ * Carga en dos fases para que la pantalla se sienta rápida sin depender de que
+ * el panel IPTV responda rápido:
+ *  - Si hay caché en disco de una visita anterior, se muestra de inmediato (sin
+ *    spinner) mientras se refresca en segundo plano y se reemplaza al terminar.
+ *  - Si no hay caché (primera vez), cada fila aparece apenas su categoría
+ *    responde, en vez de esperar a que respondan todas antes de mostrar algo.
  */
 class SectionBrowseFragment : BrowseSupportFragment() {
 
@@ -74,25 +81,85 @@ class SectionBrowseFragment : BrowseSupportFragment() {
 
     private fun loadContent() {
         val session = session() ?: return
-        progressBarManager.show()
         rowsAdapter.clear()
 
         viewLifecycleOwner.lifecycleScope.launch {
-            val rows = try {
-                val categories = fetchCategories(session)
-                buildRowsForCategories(session, categories)
+            val cached = withContext(Dispatchers.IO) { readCache() }
+            val shownFromCache = cached != null && cached.isNotEmpty()
+
+            if (shownFromCache) {
+                cached!!.forEach { (category, items) -> addCategoryRow(category, items) }
+            } else {
+                progressBarManager.show()
+            }
+
+            val categories = try {
+                fetchCategories(session)
             } catch (e: Exception) {
                 null
             }
 
-            progressBarManager.hide()
+            if (categories.isNullOrEmpty()) {
+                progressBarManager.hide()
+                if (!shownFromCache) showLoadErrorRow()
+                return@launch
+            }
 
-            if (rows.isNullOrEmpty()) {
-                showLoadErrorRow()
-            } else {
-                rows.forEach { rowsAdapter.add(it) }
+            val freshItemsByCategory = mutableMapOf<String, List<HomeCardItem>>()
+            var addedAny = false
+            var spinnerHidden = shownFromCache
+
+            coroutineScope {
+                categories.forEach { category ->
+                    launch(Dispatchers.IO) {
+                        val items = concurrencyLimiter.withPermit {
+                            try {
+                                fetchItemsForCategory(session, category)
+                            } catch (e: Exception) {
+                                emptyList()
+                            }
+                        }
+                        if (items.isNotEmpty()) {
+                            withContext(Dispatchers.Main) {
+                                freshItemsByCategory[category.categoryId] = items
+                                addedAny = true
+                                if (!shownFromCache) {
+                                    if (!spinnerHidden) {
+                                        spinnerHidden = true
+                                        progressBarManager.hide()
+                                    }
+                                    addCategoryRow(category, items)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!spinnerHidden) progressBarManager.hide()
+
+            when {
+                shownFromCache && addedAny -> {
+                    // Refresco silencioso terminado: reemplaza lo cacheado por datos frescos.
+                    rowsAdapter.clear()
+                    categories.forEach { category ->
+                        freshItemsByCategory[category.categoryId]?.let { addCategoryRow(category, it) }
+                    }
+                }
+                !addedAny && !shownFromCache -> showLoadErrorRow()
+            }
+
+            if (addedAny) {
+                withContext(Dispatchers.IO) { writeCache(categories, freshItemsByCategory) }
             }
         }
+    }
+
+    private fun addCategoryRow(category: Category, items: List<HomeCardItem>) {
+        val header = HeaderItem(category.categoryName)
+        val itemsAdapter = ArrayObjectAdapter(cardPresenter)
+        itemsAdapter.addAll(0, items)
+        rowsAdapter.add(ListRow(header, itemsAdapter))
     }
 
     private suspend fun fetchCategories(session: XtreamSession): List<Category> = when (contentType) {
@@ -111,31 +178,46 @@ class SectionBrowseFragment : BrowseSupportFragment() {
                 .map { HomeCardItem.SeriesItem(it) }
         }
 
-    private suspend fun buildRowsForCategories(
-        session: XtreamSession,
-        categories: List<Category>
-    ): List<ListRow> = coroutineScope {
-        categories
-            .map { category ->
-                async(Dispatchers.IO) {
-                    val items = concurrencyLimiter.withPermit {
-                        try {
-                            fetchItemsForCategory(session, category)
-                        } catch (e: Exception) {
-                            emptyList()
-                        }
-                    }
-                    category to items
+    private fun readCache(): List<Pair<Category, List<HomeCardItem>>>? {
+        val cache = app().catalogCache
+        return when (contentType) {
+            ContentType.LIVE -> cache.readLive()?.let { entry ->
+                entry.categories.mapNotNull { cat ->
+                    entry.streamsByCategory[cat.categoryId]?.takeIf { it.isNotEmpty() }
+                        ?.let { cat to it.map { s -> HomeCardItem.Live(s) } }
                 }
             }
-            .awaitAll()
-            .filter { it.second.isNotEmpty() }
-            .map { (category, items) ->
-                val header = HeaderItem(category.categoryName)
-                val itemsAdapter = ArrayObjectAdapter(cardPresenter)
-                itemsAdapter.addAll(0, items)
-                ListRow(header, itemsAdapter)
+            ContentType.VOD -> cache.readVod()?.let { entry ->
+                entry.categories.mapNotNull { cat ->
+                    entry.streamsByCategory[cat.categoryId]?.takeIf { it.isNotEmpty() }
+                        ?.let { cat to it.map { s -> HomeCardItem.Vod(s) } }
+                }
             }
+            ContentType.SERIES -> cache.readSeries()?.let { entry ->
+                entry.categories.mapNotNull { cat ->
+                    entry.seriesByCategory[cat.categoryId]?.takeIf { it.isNotEmpty() }
+                        ?.let { cat to it.map { s -> HomeCardItem.SeriesItem(s) } }
+                }
+            }
+        }
+    }
+
+    private fun writeCache(categories: List<Category>, itemsByCategory: Map<String, List<HomeCardItem>>) {
+        val cache = app().catalogCache
+        when (contentType) {
+            ContentType.LIVE -> {
+                val map = itemsByCategory.mapValues { (_, items) -> items.mapNotNull { (it as? HomeCardItem.Live)?.stream } }
+                cache.writeLive(LiveCacheEntry(categories, map))
+            }
+            ContentType.VOD -> {
+                val map = itemsByCategory.mapValues { (_, items) -> items.mapNotNull { (it as? HomeCardItem.Vod)?.stream } }
+                cache.writeVod(VodCacheEntry(categories, map))
+            }
+            ContentType.SERIES -> {
+                val map = itemsByCategory.mapValues { (_, items) -> items.mapNotNull { (it as? HomeCardItem.SeriesItem)?.series } }
+                cache.writeSeries(SeriesCacheEntry(categories, map))
+            }
+        }
     }
 
     private fun showLoadErrorRow() {
