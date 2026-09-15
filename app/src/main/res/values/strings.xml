@@ -26,6 +26,7 @@
     <string name="action_retry">Reintentar</string>
     <string name="home_error_loading">No se pudo cargar el contenido. Selecciona reintentar</string>
     <string name="home_empty_category">Sin contenido</string>
+    <string name="exit_confirm">Presiona Atrás de nuevo para salir de FunTV</string>
 
     <!-- Detalle de serie -->
     <string name="details_seasons_header">Temporada %1$d</string>

@@ -6,28 +6,17 @@ navegación por filas con Leanback (TV en Vivo, Películas, Series) y reproducci
 HLS/MP4 con ExoPlayer (Media3). Pensado para distribuirse como APK directo (sideload),
 no por Google Play ni Amazon Appstore.
 
-## ⚠️ Estado de este repositorio
+## Estado de este repositorio
 
-El código está completo y listo para compilar, pero **no se generó el .apk en esta
-sesión**: el entorno donde corrió Claude Code tiene bloqueado por política de red
-`dl.google.com` (403, "organization policy"), y tanto el SDK de Android
-(`android.jar`, build-tools) como las librerías de AndroidX/Leanback/Media3 solo se
-distribuyen desde ahí (`maven.google.com` redirige a `dl.google.com`). Verificación
-hecha en esta sesión:
+El entorno donde corre Claude Code tiene bloqueado `dl.google.com` por política de
+red, y de ahí se distribuyen el SDK de Android y las librerías de
+AndroidX/Leanback/Media3 — así que el `.apk` no se puede generar dentro de esa
+sesión. Sí se puede (y se ha probado con éxito) compilar en tu propia máquina con
+Android Studio, como se explica más abajo: tu red no tiene ese bloqueo.
 
-```
-$ curl -I https://maven.google.com/com/android/tools/build/gradle/maven-metadata.xml
-HTTP/2 301
-location: https://dl.google.com/dl/android/maven2/...   ← bloqueado
-```
-
-Para obtener el `.apk` tienes dos caminos:
-
-1. **Compilar en tu propia máquina** (recomendado, ver más abajo) — Android Studio
-   descarga el SDK y las dependencias sin problema porque tu red no tiene ese bloqueo.
-2. Pedir a quien administre esta cuenta que permita `dl.google.com` /
-   `maven.google.com` en la política de red de las sesiones de Claude Code, y volver
-   a pedirme que compile aquí.
+Los cambios de código se siguen haciendo en las sesiones de Claude Code y
+empujando a este repositorio; cada vez que haya cambios, trae la rama
+(`git pull`) y vuelve a compilar (`Build > Build APK(s)`) para probarlos.
 
 ## Requisitos para compilar
 
@@ -85,21 +74,28 @@ No se distribuye por tiendas oficiales. Opciones típicas:
 ## Qué incluye la app
 
 - **Login** (`ui/login`): usuario, contraseña y URL del servidor (con puerto);
-  valida contra `player_api.php`; guarda las credenciales cifradas
-  (`EncryptedSharedPreferences`) para no pedirlas de nuevo; muestra la fecha de
-  expiración de la cuenta si el panel la envía; reintenta el login automáticamente
-  al abrir la app si ya hay una sesión guardada.
-- **Home** (`ui/main`): `BrowseSupportFragment` de Leanback con filas por categoría
-  para TV en Vivo, Películas y Series (`get_live_categories/streams`,
-  `get_vod_categories/streams`, `get_series_categories`, `get_series`), navegables
-  por control remoto. Incluye una fila "Cuenta" con cierre de sesión.
+  valida contra `player_api.php`; guarda las credenciales localmente para no
+  pedirlas de nuevo; muestra la fecha de expiración de la cuenta si el panel la
+  envía; reintenta el login automáticamente al abrir la app si ya hay una sesión
+  guardada.
+- **Inicio** (`ui/main`): pantalla de aterrizaje con 4 tarjetas grandes — **TV en
+  Vivo**, **Películas**, **Series** y **Cuenta** (cierre de sesión) — cada una abre
+  su propia pantalla. Confirmación "presiona Atrás de nuevo para salir" para evitar
+  cierres accidentales.
+- **Secciones** (`ui/browse/SectionBrowseFragment`): una pantalla por tipo de
+  contenido, con `BrowseSupportFragment` de Leanback y una fila por categoría
+  (`get_live_categories/streams`, `get_vod_categories/streams`,
+  `get_series_categories`, `get_series`) — así no se mezclan canales, películas y
+  series en una sola lista.
 - **Reproductor** (`ui/player`): ExoPlayer (Media3) con soporte HLS y MP4, controles
-  por defecto (play/pausa, retroceder/avanzar, barra de progreso — ya navegables por
-  D-pad), indicador de buffering y reintento automático con espera creciente ante
-  errores de conexión (hasta 5 intentos, luego botón de reintento manual).
+  por defecto (play/pausa, retroceder/avanzar, barra de progreso, calidad/audio y
+  **subtítulos** — todo navegable por D-pad), indicador de buffering, reintento
+  automático con espera creciente ante errores de conexión (retomando desde donde se
+  cortó, no desde el inicio) y **"continuar viendo"** para películas/episodios
+  (recuerda la posición y la retoma la próxima vez; no aplica a TV en vivo).
 - **Detalle de serie** (`ui/details`): al seleccionar una serie, muestra su
-  información (`get_series_info`) con una fila por temporada y los episodios como
-  tarjetas.
+  información (`get_series_info`) con una fila por temporada, episodios con su
+  póster (`info.movie_image`) y título.
 - **Cliente Xtream Codes** (`data/api/XtreamClient.kt`): sobre OkHttp + Gson, con
   parseo defensivo de las inconsistencias típicas de estos paneles (una categoría
   vacía puede llegar como `{}` en vez de `[]`, ids numéricos a veces como texto).
@@ -109,30 +105,68 @@ No se distribuye por tiendas oficiales. Opciones típicas:
 ```
 app/src/main/java/com/funtv/player/
   data/api/        XtreamClient (llamadas HTTP), StreamUrlBuilder
-  data/model/       Modelos de datos del API
-  data/prefs/       SessionManager (credenciales cifradas)
-  ui/login/         Pantalla de login
-  ui/main/          Home (filas Leanback) y sus presenters
-  ui/details/       Detalle de serie (temporadas/episodios)
-  ui/player/        Reproductor ExoPlayer
+  data/model/      Modelos de datos del API
+  data/prefs/      SessionManager (credenciales), PlaybackPositionManager ("continuar viendo")
+  ui/login/        Pantalla de login
+  ui/main/         Inicio (4 tarjetas de sección) y sus presenters
+  ui/browse/       Pantalla de categorías por sección (Live/VOD/Series)
+  ui/details/      Detalle de serie (temporadas/episodios)
+  ui/player/       Reproductor ExoPlayer
 ```
 
 ## Branding
 
 Colores tomados del logo: rojo `#E8433A`, azul `#2CA9E1`, verde `#66BB4A`, dorado
-`#F5A623`, sobre fondo oscuro `#0D0D12` (paleta típica de apps de streaming). El
-ícono, el banner de Android TV y el logo de la pantalla de login
+`#F5A623`, sobre fondo oscuro `#0D0D12` (paleta típica de apps de streaming).
+
+El ícono, el banner de Android TV y el logo de la pantalla de login
 (`app/src/main/res/drawable/ic_launcher_foreground.xml`, `tv_banner.xml`,
-`funtv_logo.xml`) son una **interpretación vectorial** del logo que compartiste —no
-se pudo extraer el PNG original en este entorno—, fiel a la paleta y composición
-(molinillo de cuatro figuras de color alrededor de un núcleo de puntos). Si quieres
-el logo exacto, reemplaza esos tres archivos por tus assets reales (o pídeme que lo
-haga si me compartes el archivo de imagen en una carpeta del proyecto).
+`funtv_logo.xml`) son una **interpretación vectorial**, no el logo real: no fue
+posible extraer el PNG original en este entorno (llegó como imagen incrustada en el
+chat, sin un archivo en disco accesible). Para el logo exacto, la forma más
+confiable es usar el asistente de Android Studio con tu archivo real:
 
-## Próximos pasos sugeridos (fuera del alcance de esta versión inicial)
+1. En el panel de proyecto, clic derecho sobre `app` > `New` > `Image Asset`.
+2. Pestaña **Icon Type**: `Launcher Icons (Adaptive and Legacy)` → carga tu PNG en
+   "Foreground Layer" → esto reemplaza `ic_launcher` en todas las densidades.
+3. Para el banner de TV (320×180dp), exporta tu logo con el texto "FunTV" incluido
+   como PNG a esas dimensiones (en Canva, Figma, etc.) y reemplaza
+   `app/src/main/res/drawable/tv_banner.xml` por un `tv_banner.png` con ese
+   contenido (actualiza la referencia en el manifest si cambias el nombre).
+4. Para el logo de la pantalla de login, reemplaza `funtv_logo.xml` por tu PNG de
+   la misma forma (o pídeme que lo haga si me compartes el archivo directamente
+   como un archivo en este proyecto, no como imagen pegada en el chat).
 
-- Búsqueda global (Leanback `SearchSupportFragment`).
-- EPG (guía de programación) si el panel expone `get_short_epg`/`get_simple_data_table`.
-- Favoritos / "continuar viendo".
-- Paginación perezosa de categorías con muchísimo contenido (hoy se cargan todas al
-  entrar al Home).
+## Roadmap priorizado
+
+Funciones evaluadas de la lista de referencia que compartiste, con su factibilidad:
+
+**Fáciles de sumar en una próxima iteración** (sin dependencias nuevas bloqueadas):
+- Favoritos (marcar canales/pelis/series).
+- Búsqueda global (`SearchSupportFragment` de Leanback).
+- Perfiles simples + PIN de control parental (almacenamiento local, sin backend).
+- Selector de tema de color (variantes de la paleta ya definida en `colors.xml`).
+- EPG básico si tu panel expone `get_short_epg`/`get_simple_data_table`.
+- Splash screen animado de arranque.
+
+**Factibles pero de mayor alcance** (varias pantallas/lógica nueva):
+- Descargas para ver sin internet (requiere gestión de almacenamiento, cola de
+  descargas y, si el contenido está protegido, DRM — Xtream Codes normalmente no
+  ofrece streams protegidos, así que sería "guardar el archivo", no DRM real).
+- Multi-View (varios canales a la vez): técnicamente posible con varias instancias
+  de ExoPlayer, pero exige mucho cuidado con memoria/CPU en hardware de TV modesto.
+- Picture-in-Picture: soportado por Android desde API 26; el resto del proyecto usa
+  minSdk 21, así que habría que decidir si vale la pena subir el mínimo o hacerlo
+  condicional.
+
+**Bloqueadas o dependientes de infraestructura que no tienes hoy**:
+- Chromecast: el SDK de Cast se distribuye por `dl.google.com`, el mismo dominio
+  bloqueado en esta sesión — se puede agregar, pero habría que compilarlo en tu
+  máquina (ya lo estás haciendo) y no aquí.
+- Notificaciones push / campanita / recordatorios de vencimiento / soporte por
+  WhatsApp: necesitan un backend propio (servidor que dispare las notificaciones),
+  no son solo cambios en la app cliente.
+- "Catálogo inteligente" con sincronización en segundo plano: requiere diseñar una
+  estrategia de caché/actualización; factible, pero es un proyecto en sí mismo.
+
+Dime cuáles priorizar y seguimos con esas.

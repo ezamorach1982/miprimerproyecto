@@ -42,11 +42,6 @@ class CardPresenter : Presenter() {
                 cardView.contentText = item.sectionTitle
                 cardView.mainImageView.setImageResource(R.drawable.ic_retry)
             }
-            is HomeCardItem.Logout -> {
-                cardView.titleText = context.getString(R.string.action_logout)
-                cardView.contentText = ""
-                cardView.mainImageView.setImageResource(R.drawable.ic_retry)
-            }
         }
     }
 

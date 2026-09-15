@@ -8,12 +8,15 @@
     android:keepScreenOn="true">
 
     <!-- Se usan los controles por defecto de Media3 (play/pausa, retroceder/avanzar,
-         barra de progreso): ya son navegables con D-pad de forma nativa. -->
+         barra de progreso, calidad/audio vía el ícono de ajustes): ya son navegables
+         con D-pad de forma nativa. show_subtitle_button agrega el botón de
+         subtítulos/CC, que Media3 oculta por defecto. -->
     <androidx.media3.ui.PlayerView
         android:id="@+id/playerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:show_buffering="always"
+        app:show_subtitle_button="true"
         app:use_controller="true" />
 
     <ProgressBar

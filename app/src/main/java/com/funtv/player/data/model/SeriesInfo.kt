@@ -35,5 +35,13 @@ data class Episode(
     @SerializedName("episode_num") val episodeNum: Int? = 0,
     @SerializedName("title") val title: String? = "",
     @SerializedName("container_extension") val containerExtension: String? = "mp4",
-    @SerializedName("season") val season: Int? = 0
+    @SerializedName("season") val season: Int? = 0,
+    @SerializedName("info") val info: EpisodeInfo? = null
+)
+
+data class EpisodeInfo(
+    @SerializedName("movie_image") val movieImage: String? = null,
+    @SerializedName("plot") val plot: String? = null,
+    @SerializedName("duration") val duration: String? = null,
+    @SerializedName("rating") val rating: String? = null
 )

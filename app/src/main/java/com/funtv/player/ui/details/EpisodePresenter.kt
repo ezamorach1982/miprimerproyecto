@@ -4,6 +4,7 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.leanback.widget.ImageCardView
 import androidx.leanback.widget.Presenter
+import coil.load
 import com.funtv.player.R
 import com.funtv.player.data.model.Episode
 
@@ -15,7 +16,6 @@ class EpisodePresenter : Presenter() {
         cardView.isFocusableInTouchMode = true
         cardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT)
         cardView.setBackgroundColor(ContextCompat.getColor(parent.context, R.color.funtv_surface))
-        cardView.mainImageView.setImageResource(R.drawable.placeholder_poster)
         return ViewHolder(cardView)
     }
 
@@ -24,10 +24,21 @@ class EpisodePresenter : Presenter() {
         val episode = item as? Episode ?: return
         cardView.titleText = "Ep. ${episode.episodeNum ?: 0}"
         cardView.contentText = episode.title.orEmpty()
+
+        val poster = episode.info?.movieImage
+        if (poster.isNullOrBlank()) {
+            cardView.mainImageView.setImageResource(R.drawable.placeholder_poster)
+        } else {
+            cardView.mainImageView.load(poster) {
+                placeholder(R.drawable.placeholder_poster)
+                error(R.drawable.placeholder_poster)
+            }
+        }
     }
 
     override fun onUnbindViewHolder(viewHolder: ViewHolder) {
-        // No hay recursos externos (imágenes remotas) que liberar en esta tarjeta.
+        val cardView = viewHolder.view as ImageCardView
+        cardView.mainImageView.setImageDrawable(null)
     }
 
     companion object {

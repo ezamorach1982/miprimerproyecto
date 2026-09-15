@@ -47,6 +47,11 @@
             android:theme="@style/Theme.FunTV.Browse" />
 
         <activity
+            android:name=".ui.browse.SectionBrowseActivity"
+            android:exported="false"
+            android:theme="@style/Theme.FunTV.Browse" />
+
+        <activity
             android:name=".ui.details.SeriesDetailsActivity"
             android:exported="false"
             android:theme="@style/Theme.FunTV.Browse" />
