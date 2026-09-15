@@ -2,7 +2,6 @@ package com.funtv.player.ui.browse
 
 import android.os.Bundle
 import android.view.View
-import androidx.core.content.ContextCompat
 import androidx.leanback.app.VerticalGridSupportFragment
 import androidx.leanback.widget.ArrayObjectAdapter
 import androidx.leanback.widget.OnItemViewClickedListener
@@ -11,7 +10,6 @@ import androidx.leanback.widget.Row
 import androidx.leanback.widget.RowPresenter
 import androidx.leanback.widget.VerticalGridPresenter
 import androidx.lifecycle.lifecycleScope
-import com.funtv.player.R
 import com.funtv.player.data.api.StreamUrlBuilder
 import com.funtv.player.data.model.XtreamSession
 import com.funtv.player.ui.details.SeriesDetailsActivity
@@ -42,7 +40,6 @@ class CategoryGridFragment : VerticalGridSupportFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         title = categoryName
-        setBrandColor(ContextCompat.getColor(requireContext(), R.color.funtv_background))
 
         val gridPresenter = VerticalGridPresenter()
         gridPresenter.numberOfColumns = GRID_COLUMNS

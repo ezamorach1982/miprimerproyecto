@@ -12,7 +12,6 @@ import androidx.leanback.widget.ListRowPresenter
 import androidx.leanback.widget.OnItemViewClickedListener
 import androidx.leanback.widget.Presenter
 import androidx.leanback.widget.Row
-import androidx.leanback.widget.RowHeaderPresenter
 import androidx.leanback.widget.RowPresenter
 import androidx.lifecycle.lifecycleScope
 import com.funtv.player.R
@@ -46,17 +45,15 @@ import kotlinx.coroutines.withContext
  *  - Si no hay caché (primera vez), cada fila aparece apenas su categoría
  *    responde, en vez de esperar a que respondan todas antes de mostrar algo.
  *
- * Cada fila muestra solo una vista previa horizontal (unas pocas tarjetas). Al
- * seleccionar el ENCABEZADO de una categoría (panel izquierdo) y presionar
- * OK/Enter, se abre CategoryGridActivity con TODO el contenido de esa categoría
- * en una cuadrícula vertical con scroll.
+ * Cada fila muestra solo una vista previa horizontal (unas pocas tarjetas), con
+ * una tarjeta "Ver todo" al final que abre CategoryGridActivity con TODO el
+ * contenido de esa categoría en una cuadrícula vertical con scroll.
  */
 class SectionBrowseFragment : BrowseSupportFragment() {
 
     private val rowsAdapter = ArrayObjectAdapter(ListRowPresenter())
     private val cardPresenter = CardPresenter()
     private val concurrencyLimiter = Semaphore(5)
-    private val categoryByRow = mutableMapOf<Row, Category>()
 
     private val contentType: ContentType by lazy {
         ContentType.valueOf(requireArguments().getString(ARG_CONTENT_TYPE)!!)
@@ -72,11 +69,6 @@ class SectionBrowseFragment : BrowseSupportFragment() {
 
         setAdapter(rowsAdapter)
         onItemViewClickedListener = ItemViewClickedListener()
-        setOnHeaderClickedListener(object : OnHeaderClickedListener {
-            override fun onHeaderClicked(viewHolder: RowHeaderPresenter.ViewHolder, row: Row) {
-                categoryByRow[row]?.let { openCategoryGrid(it) }
-            }
-        })
 
         loadContent()
     }
@@ -99,7 +91,7 @@ class SectionBrowseFragment : BrowseSupportFragment() {
 
     private fun loadContent() {
         val session = session() ?: return
-        rowsAdapter.clear(); categoryByRow.clear()
+        rowsAdapter.clear()
 
         viewLifecycleOwner.lifecycleScope.launch {
             val cached = withContext(Dispatchers.IO) { readCache() }
@@ -159,7 +151,7 @@ class SectionBrowseFragment : BrowseSupportFragment() {
             when {
                 shownFromCache && addedAny -> {
                     // Refresco silencioso terminado: reemplaza lo cacheado por datos frescos.
-                    rowsAdapter.clear(); categoryByRow.clear()
+                    rowsAdapter.clear()
                     categories.forEach { category ->
                         freshItemsByCategory[category.categoryId]?.let { addCategoryRow(category, it) }
                     }
@@ -177,9 +169,8 @@ class SectionBrowseFragment : BrowseSupportFragment() {
         val header = HeaderItem(category.categoryName)
         val itemsAdapter = ArrayObjectAdapter(cardPresenter)
         itemsAdapter.addAll(0, items)
-        val row = ListRow(header, itemsAdapter)
-        categoryByRow[row] = category
-        rowsAdapter.add(row)
+        itemsAdapter.add(HomeCardItem.SeeAll(category))
+        rowsAdapter.add(ListRow(header, itemsAdapter))
     }
 
     private suspend fun fetchCategories(session: XtreamSession): List<Category> = when (contentType) {
@@ -241,7 +232,7 @@ class SectionBrowseFragment : BrowseSupportFragment() {
     }
 
     private fun showLoadErrorRow() {
-        rowsAdapter.clear(); categoryByRow.clear()
+        rowsAdapter.clear()
         val header = HeaderItem(getString(sectionTitleRes()))
         val itemsAdapter = ArrayObjectAdapter(cardPresenter)
         itemsAdapter.add(HomeCardItem.Retry(getString(R.string.home_error_loading)))
@@ -276,6 +267,7 @@ class SectionBrowseFragment : BrowseSupportFragment() {
                     )
                 }
                 is HomeCardItem.Retry -> loadContent()
+                is HomeCardItem.SeeAll -> openCategoryGrid(item.category)
             }
         }
     }

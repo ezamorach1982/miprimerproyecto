@@ -1,5 +1,6 @@
 package com.funtv.player.ui.main
 
+import com.funtv.player.data.model.Category
 import com.funtv.player.data.model.LiveStream
 import com.funtv.player.data.model.Series
 import com.funtv.player.data.model.VodStream
@@ -10,4 +11,7 @@ sealed class HomeCardItem {
     data class Vod(val stream: VodStream) : HomeCardItem()
     data class SeriesItem(val series: Series) : HomeCardItem()
     data class Retry(val sectionTitle: String) : HomeCardItem()
+
+    /** Tarjeta al final de cada fila: abre la categoría completa en una cuadrícula vertical. */
+    data class SeeAll(val category: Category) : HomeCardItem()
 }

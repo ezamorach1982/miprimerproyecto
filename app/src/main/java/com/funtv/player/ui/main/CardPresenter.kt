@@ -42,6 +42,11 @@ class CardPresenter : Presenter() {
                 cardView.contentText = item.sectionTitle
                 cardView.mainImageView.setImageResource(R.drawable.ic_retry)
             }
+            is HomeCardItem.SeeAll -> {
+                cardView.titleText = context.getString(R.string.action_see_all)
+                cardView.contentText = ""
+                cardView.mainImageView.setImageResource(R.drawable.ic_see_all)
+            }
         }
     }
 

@@ -25,6 +25,7 @@
     <string name="header_account">Cuenta</string>
     <string name="action_logout">Cerrar sesión</string>
     <string name="action_retry">Reintentar</string>
+    <string name="action_see_all">Ver todo</string>
     <string name="home_error_loading">No se pudo cargar el contenido. Selecciona reintentar</string>
     <string name="home_empty_category">Sin contenido</string>
     <string name="exit_confirm">Presiona Atrás de nuevo para salir de FunTV</string>
