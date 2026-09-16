@@ -28,7 +28,7 @@ class LoginActivity : AppCompatActivity() {
 
         binding.buttonConnect.setOnClickListener {
             performLogin(
-                serverUrl = binding.editServerUrl.text.toString(),
+                serverUrl = DEFAULT_SERVER_URL,
                 username = binding.editUsername.text.toString(),
                 password = binding.editPassword.text.toString(),
                 isAutoLogin = false
@@ -43,7 +43,6 @@ class LoginActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val session = withContext(Dispatchers.IO) { funTvApp().sessionManager.getSession() }
             if (session != null) {
-                binding.editServerUrl.setText(session.baseUrl)
                 binding.editUsername.setText(session.username)
                 binding.editPassword.setText(session.password)
                 performLogin(session.baseUrl, session.username, session.password, isAutoLogin = true)
@@ -108,5 +107,10 @@ class LoginActivity : AppCompatActivity() {
     private fun goToHome() {
         startActivity(Intent(this, MainActivity::class.java))
         finish()
+    }
+
+    companion object {
+        /** Servidor Xtream Codes fijo: este build solo se usa con este panel, así que el usuario no tiene que escribirlo. */
+        private const val DEFAULT_SERVER_URL = "http://xdplus.site:2082"
     }
 }

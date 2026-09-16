@@ -10,7 +10,7 @@
     <string name="login_hint_password">Contraseña</string>
     <string name="login_button_connect">Conectar</string>
     <string name="login_connecting">Conectando…</string>
-    <string name="login_error_empty_fields">Completa el usuario, la contraseña y la URL del servidor</string>
+    <string name="login_error_empty_fields">Completa el usuario y la contraseña</string>
     <string name="login_error_invalid_credentials">Usuario o contraseña incorrectos</string>
     <string name="login_error_generic">No se pudo conectar con el servidor. Verifica la URL e inténtalo de nuevo</string>
     <string name="login_expiration">Tu cuenta vence el %1$s</string>

@@ -65,28 +65,10 @@
             app:layout_constraintGuide_percent="0.75" />
 
         <EditText
-            android:id="@+id/editServerUrl"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:autofillHints="url"
-            android:background="@drawable/bg_input_field"
-            android:hint="@string/login_hint_server"
-            android:imeOptions="actionNext"
-            android:inputType="textUri"
-            android:padding="12dp"
-            android:singleLine="true"
-            android:textColor="@color/funtv_text_primary"
-            android:textColorHint="@color/funtv_text_secondary"
-            app:layout_constraintEnd_toStartOf="@id/guidelineEnd"
-            app:layout_constraintStart_toStartOf="@id/guidelineStart"
-            app:layout_constraintTop_toBottomOf="@id/textSubtitle" />
-
-        <EditText
             android:id="@+id/editUsername"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="20dp"
             android:autofillHints="username"
             android:background="@drawable/bg_input_field"
             android:hint="@string/login_hint_username"
@@ -98,7 +80,7 @@
             android:textColorHint="@color/funtv_text_secondary"
             app:layout_constraintEnd_toStartOf="@id/guidelineEnd"
             app:layout_constraintStart_toStartOf="@id/guidelineStart"
-            app:layout_constraintTop_toBottomOf="@id/editServerUrl" />
+            app:layout_constraintTop_toBottomOf="@id/textSubtitle" />
 
         <EditText
             android:id="@+id/editPassword"
