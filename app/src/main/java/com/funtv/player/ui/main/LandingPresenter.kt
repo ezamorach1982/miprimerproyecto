@@ -2,6 +2,7 @@ package com.funtv.player.ui.main
 
 import android.content.Context
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.leanback.widget.ImageCardView
 import androidx.leanback.widget.Presenter
 import com.funtv.player.util.formatLastUpdated
@@ -15,6 +16,9 @@ class LandingPresenter : Presenter() {
         cardView.isFocusable = true
         cardView.isFocusableInTouchMode = true
         cardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT)
+        // Las imágenes de fondo son fotos (no íconos vectoriales a medida): que
+        // rellenen la tarjeta recortando en vez de deformarse o dejar bordes vacíos.
+        cardView.mainImageView.scaleType = ImageView.ScaleType.CENTER_CROP
         return ViewHolder(cardView)
     }
 
