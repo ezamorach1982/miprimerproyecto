@@ -20,8 +20,6 @@
             android:hint="@string/search_hint"
             android:imeOptions="actionSearch"
             android:inputType="text"
-            android:nextFocusDown="@id/buttonSearchGo"
-            android:nextFocusRight="@id/buttonSearchGo"
             android:padding="16dp"
             android:singleLine="true"
             android:textColor="@color/funtv_text_primary"
@@ -33,8 +31,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:backgroundTint="@color/funtv_accent"
-            android:nextFocusUp="@id/editSearchQuery"
-            android:nextFocusLeft="@id/editSearchQuery"
             android:text="@string/search_button"
             android:textColor="@color/funtv_background"
             android:textStyle="bold" />
