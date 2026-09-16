@@ -109,21 +109,21 @@ class CategoryGridFragment : VerticalGridSupportFragment() {
                 val categories = existing?.categories.orEmpty().ifEmpty { listOf(currentCategoryPlaceholder()) }
                 val map = existing?.streamsByCategory.orEmpty().toMutableMap()
                 map[categoryId] = items.mapNotNull { (it as? HomeCardItem.Live)?.stream }
-                cache.writeLive(LiveCacheEntry(categories, map))
+                cache.writeLive(LiveCacheEntry(categories, map, existing?.lastUpdatedAt ?: 0L))
             }
             ContentType.VOD -> {
                 val existing = cache.readVod()
                 val categories = existing?.categories.orEmpty().ifEmpty { listOf(currentCategoryPlaceholder()) }
                 val map = existing?.streamsByCategory.orEmpty().toMutableMap()
                 map[categoryId] = items.mapNotNull { (it as? HomeCardItem.Vod)?.stream }
-                cache.writeVod(VodCacheEntry(categories, map))
+                cache.writeVod(VodCacheEntry(categories, map, existing?.lastUpdatedAt ?: 0L))
             }
             ContentType.SERIES -> {
                 val existing = cache.readSeries()
                 val categories = existing?.categories.orEmpty().ifEmpty { listOf(currentCategoryPlaceholder()) }
                 val map = existing?.seriesByCategory.orEmpty().toMutableMap()
                 map[categoryId] = items.mapNotNull { (it as? HomeCardItem.SeriesItem)?.series }
-                cache.writeSeries(SeriesCacheEntry(categories, map))
+                cache.writeSeries(SeriesCacheEntry(categories, map, existing?.lastUpdatedAt ?: 0L))
             }
         }
     }

@@ -68,7 +68,7 @@ object ContentRefresher {
             }
         }
         if (map.isEmpty()) return false
-        app.catalogCache.writeLive(LiveCacheEntry(categories, map))
+        app.catalogCache.writeLive(LiveCacheEntry(categories, map, System.currentTimeMillis()))
         return true
     }
 
@@ -87,7 +87,7 @@ object ContentRefresher {
             }
         }
         if (map.isEmpty()) return false
-        app.catalogCache.writeVod(VodCacheEntry(categories, map))
+        app.catalogCache.writeVod(VodCacheEntry(categories, map, System.currentTimeMillis()))
         return true
     }
 
@@ -106,7 +106,7 @@ object ContentRefresher {
             }
         }
         if (map.isEmpty()) return false
-        app.catalogCache.writeSeries(SeriesCacheEntry(categories, map))
+        app.catalogCache.writeSeries(SeriesCacheEntry(categories, map, System.currentTimeMillis()))
         return true
     }
 }

@@ -173,9 +173,18 @@ class SectionBrowseFragment : Fragment(R.layout.fragment_section_browse) {
     private fun mergeCategoriesIntoCache(categories: List<Category>) {
         val cache = app().catalogCache
         when (contentType) {
-            ContentType.LIVE -> cache.writeLive(LiveCacheEntry(categories, cache.readLive()?.streamsByCategory.orEmpty()))
-            ContentType.VOD -> cache.writeVod(VodCacheEntry(categories, cache.readVod()?.streamsByCategory.orEmpty()))
-            ContentType.SERIES -> cache.writeSeries(SeriesCacheEntry(categories, cache.readSeries()?.seriesByCategory.orEmpty()))
+            ContentType.LIVE -> {
+                val existing = cache.readLive()
+                cache.writeLive(LiveCacheEntry(categories, existing?.streamsByCategory.orEmpty(), existing?.lastUpdatedAt ?: 0L))
+            }
+            ContentType.VOD -> {
+                val existing = cache.readVod()
+                cache.writeVod(VodCacheEntry(categories, existing?.streamsByCategory.orEmpty(), existing?.lastUpdatedAt ?: 0L))
+            }
+            ContentType.SERIES -> {
+                val existing = cache.readSeries()
+                cache.writeSeries(SeriesCacheEntry(categories, existing?.seriesByCategory.orEmpty(), existing?.lastUpdatedAt ?: 0L))
+            }
         }
     }
 

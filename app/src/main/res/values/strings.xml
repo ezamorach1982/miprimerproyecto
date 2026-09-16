@@ -45,6 +45,14 @@
     <string name="action_refresh_in_progress">Actualizando…</string>
     <string name="action_clear_image_cache">Borrar caché de imágenes</string>
     <string name="image_cache_cleared">Caché de imágenes borrado</string>
+    <string name="home_updated_never">Nunca actualizado</string>
+    <string name="home_updated_just_now">Actualizado recién</string>
+    <string name="home_updated_minutes">Actualizado hace %1$d min</string>
+    <string name="home_updated_hours">Actualizado hace %1$d h</string>
+    <string name="home_updated_days">Actualizado hace %1$d d</string>
+    <string name="home_account_desc">Cuenta y ajustes</string>
+    <string name="home_search_desc">Buscar</string>
+    <string name="home_refresh_desc">Actualizar</string>
     <string name="favorite_added">Agregado a favoritos</string>
     <string name="favorite_removed">Quitado de favoritos</string>
     <string name="search_title">Buscar</string>

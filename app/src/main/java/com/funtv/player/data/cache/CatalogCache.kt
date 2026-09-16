@@ -12,17 +12,21 @@ import java.lang.reflect.Type
 
 data class LiveCacheEntry(
     val categories: List<Category>,
-    val streamsByCategory: Map<String, List<LiveStream>>
+    val streamsByCategory: Map<String, List<LiveStream>>,
+    /** Hora (epoch ms) de la última descarga completa de la sección, para mostrar "actualizado hace X" en el inicio. 0 = nunca. */
+    val lastUpdatedAt: Long = 0L
 )
 
 data class VodCacheEntry(
     val categories: List<Category>,
-    val streamsByCategory: Map<String, List<VodStream>>
+    val streamsByCategory: Map<String, List<VodStream>>,
+    val lastUpdatedAt: Long = 0L
 )
 
 data class SeriesCacheEntry(
     val categories: List<Category>,
-    val seriesByCategory: Map<String, List<Series>>
+    val seriesByCategory: Map<String, List<Series>>,
+    val lastUpdatedAt: Long = 0L
 )
 
 /**
