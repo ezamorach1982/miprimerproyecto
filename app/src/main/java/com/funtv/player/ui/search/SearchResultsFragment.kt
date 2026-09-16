@@ -89,10 +89,13 @@ class SearchResultsFragment : VerticalGridSupportFragment() {
     }
 
     private inner class ItemViewClickedListener : OnItemViewClickedListener {
+        // rowViewHolder y row son nulos en una cuadrícula vertical (VerticalGridPresenter no
+        // tiene filas): declararlos no-nulos hacía que Kotlin generara una comprobación que
+        // reventaba con NullPointerException al tocar CUALQUIER resultado de búsqueda.
         override fun onItemClicked(
             itemViewHolder: Presenter.ViewHolder,
             item: Any,
-            rowViewHolder: RowPresenter.ViewHolder,
+            rowViewHolder: RowPresenter.ViewHolder?,
             row: Row?
         ) {
             val session = requireContext().funTvApp().sessionManager.getSession() ?: return
