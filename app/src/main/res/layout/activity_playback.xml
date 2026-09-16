@@ -27,19 +27,6 @@
         android:indeterminateTint="@color/funtv_accent"
         android:visibility="gone" />
 
-    <!-- Plan B para contenido que ExoPlayer reproduce sin audio por códecs que el
-         dispositivo no decodifica bien: reabre el mismo contenido con VLC. -->
-    <Button
-        android:id="@+id/buttonCompatibleMode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|start"
-        android:layout_margin="16dp"
-        android:background="@drawable/bg_sidebar_item"
-        android:text="@string/action_compatible_mode"
-        android:textColor="@color/funtv_text_secondary"
-        android:textSize="12sp" />
-
     <LinearLayout
         android:id="@+id/layoutError"
         android:layout_width="wrap_content"

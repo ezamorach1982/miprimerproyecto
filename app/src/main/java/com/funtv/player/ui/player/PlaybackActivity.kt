@@ -88,9 +88,6 @@ class PlaybackActivity : AppCompatActivity() {
             retryOrStart()
         }
         binding.buttonBack.setOnClickListener { finish() }
-        binding.buttonCompatibleMode.setOnClickListener {
-            startActivity(VlcPlaybackActivity.newIntent(this, currentUrl, currentTitle))
-        }
 
         title = currentTitle
 

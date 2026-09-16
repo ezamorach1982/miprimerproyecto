@@ -69,6 +69,4 @@
     <string name="player_manual_retry">Reintentar</string>
     <string name="player_back">Volver</string>
     <string name="player_next_episode">Siguiente: %1$s</string>
-    <string name="action_compatible_mode">¿Sin audio? Probar modo compatible</string>
-    <string name="vlc_mode_label">Modo compatible (VLC)</string>
 </resources>
