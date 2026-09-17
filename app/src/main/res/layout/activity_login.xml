@@ -7,18 +7,23 @@
     android:background="@color/funtv_background"
     android:fillViewport="true">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingStart="48dp"
-        android:paddingTop="24dp"
+        android:paddingTop="16dp"
         android:paddingEnd="48dp"
-        android:paddingBottom="24dp">
+        android:paddingBottom="8dp">
 
         <ImageView
             android:id="@+id/imageLogo"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
             android:contentDescription="@string/app_name"
             android:src="@drawable/funtv_logo"
             app:layout_constraintEnd_toEndOf="parent"
@@ -157,4 +162,15 @@
             tools:text="@string/login_expiration" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.funtv.player.ui.widget.OnScreenKeyboardView
+            android:id="@+id/onScreenKeyboard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="24dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="24dp"
+            android:paddingBottom="24dp" />
+
+    </LinearLayout>
 </ScrollView>

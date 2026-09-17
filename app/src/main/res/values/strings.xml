@@ -15,6 +15,10 @@
     <string name="login_error_generic">No se pudo conectar con el servidor. Verifica la URL e inténtalo de nuevo</string>
     <string name="login_expiration">Tu cuenta vence el %1$s</string>
     <string name="login_no_expiration">Sin fecha de vencimiento (cuenta ilimitada)</string>
+    <string name="keyboard_shift">MAYÚS</string>
+    <string name="keyboard_space">ESPACIO</string>
+    <string name="keyboard_backspace">BORRAR</string>
+    <string name="keyboard_done">LISTO</string>
 
     <!-- Home -->
     <string name="home_title">FunTV</string>

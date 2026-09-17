@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Fila 1: números -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button style="@style/KeyboardKey" android:text="1" />
+        <Button style="@style/KeyboardKey" android:text="2" />
+        <Button style="@style/KeyboardKey" android:text="3" />
+        <Button style="@style/KeyboardKey" android:text="4" />
+        <Button style="@style/KeyboardKey" android:text="5" />
+        <Button style="@style/KeyboardKey" android:text="6" />
+        <Button style="@style/KeyboardKey" android:text="7" />
+        <Button style="@style/KeyboardKey" android:text="8" />
+        <Button style="@style/KeyboardKey" android:text="9" />
+        <Button style="@style/KeyboardKey" android:text="0" />
+    </LinearLayout>
+
+    <!-- Fila 2: q-p -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button style="@style/KeyboardKey" android:tag="letter" android:text="q" />
+        <Button style="@style/KeyboardKey" android:tag="letter" android:text="w" />
+        <Button style="@style/KeyboardKey" android:tag="letter" android:text="e" />
+        <Button style="@style/KeyboardKey" android:tag="letter" android:text="r" />
+        <Button style="@style/KeyboardKey" android:tag="letter" android:text="t" />
+        <Button style="@style/KeyboardKey" android:tag="letter" android:text="y" />
+        <Button style="@style/KeyboardKey" android:tag="letter" android:text="u" />
+        <Button style="@style/KeyboardKey" android:tag="letter" android:text="i" />
+        <Button style="@style/KeyboardKey" android:tag="letter" android:text="o" />
+        <Button style="@style/KeyboardKey" android:tag="letter" android:text="p" />
+    </LinearLayout>
+
+    <!-- Fila 3: a-l (9 teclas + 1 vacía para alinear con las demás filas de 10) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5" />
+        <Button style="@style/KeyboardKey" android:tag="letter" android:text="a" />
+        <Button style="@style/KeyboardKey" android:tag="letter" android:text="s" />
+        <Button style="@style/KeyboardKey" android:tag="letter" android:text="d" />
+        <Button style="@style/KeyboardKey" android:tag="letter" android:text="f" />
+        <Button style="@style/KeyboardKey" android:tag="letter" android:text="g" />
+        <Button style="@style/KeyboardKey" android:tag="letter" android:text="h" />
+        <Button style="@style/KeyboardKey" android:tag="letter" android:text="j" />
+        <Button style="@style/KeyboardKey" android:tag="letter" android:text="k" />
+        <Button style="@style/KeyboardKey" android:tag="letter" android:text="l" />
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5" />
+    </LinearLayout>
+
+    <!-- Fila 4: z-m + símbolos comunes en usuarios/contraseñas -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button style="@style/KeyboardKey" android:tag="letter" android:text="z" />
+        <Button style="@style/KeyboardKey" android:tag="letter" android:text="x" />
+        <Button style="@style/KeyboardKey" android:tag="letter" android:text="c" />
+        <Button style="@style/KeyboardKey" android:tag="letter" android:text="v" />
+        <Button style="@style/KeyboardKey" android:tag="letter" android:text="b" />
+        <Button style="@style/KeyboardKey" android:tag="letter" android:text="n" />
+        <Button style="@style/KeyboardKey" android:tag="letter" android:text="m" />
+        <Button style="@style/KeyboardKey" android:text="." />
+        <Button style="@style/KeyboardKey" android:text="-" />
+        <Button style="@style/KeyboardKey" android:text="_" />
+    </LinearLayout>
+
+    <!-- Fila 5: controles -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            style="@style/KeyboardKey"
+            android:layout_weight="2"
+            android:tag="shift"
+            android:text="@string/keyboard_shift" />
+        <Button style="@style/KeyboardKey" android:text="@" />
+        <Button
+            style="@style/KeyboardKey"
+            android:layout_weight="3"
+            android:tag="space"
+            android:text="@string/keyboard_space" />
+        <Button
+            style="@style/KeyboardKey"
+            android:layout_weight="2"
+            android:tag="backspace"
+            android:text="@string/keyboard_backspace" />
+        <Button
+            style="@style/KeyboardKey"
+            android:layout_weight="2"
+            android:tag="done"
+            android:text="@string/keyboard_done" />
+    </LinearLayout>
+
+</merge>

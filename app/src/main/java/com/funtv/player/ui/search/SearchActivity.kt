@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.fragment.app.FragmentActivity
 import com.funtv.player.R
 import com.funtv.player.ui.browse.ContentType
+import com.funtv.player.ui.widget.OnScreenKeyboardView
 
 /**
  * Extiende FragmentActivity (no AppCompatActivity): Theme.FunTV.Browse desciende de
@@ -18,10 +19,16 @@ class SearchActivity : FragmentActivity(R.layout.activity_search) {
 
         val editQuery = findViewById<android.widget.EditText>(R.id.editSearchQuery)
         val buttonGo = findViewById<android.widget.Button>(R.id.buttonSearchGo)
+        val keyboard = findViewById<OnScreenKeyboardView>(R.id.onScreenKeyboard)
 
         buttonGo.setOnClickListener {
             performSearch(editQuery.text.toString())
         }
+
+        // Mismo motivo que en el login: el teclado del sistema no siempre responde
+        // bien al control remoto en estos televisores.
+        keyboard.attachTo(editQuery)
+        keyboard.onDone = { performSearch(editQuery.text.toString()) }
     }
 
     private fun performSearch(query: String) {

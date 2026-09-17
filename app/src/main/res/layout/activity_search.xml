@@ -37,6 +37,15 @@
 
     </LinearLayout>
 
+    <com.funtv.player.ui.widget.OnScreenKeyboardView
+        android:id="@+id/onScreenKeyboard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="24dp"
+        android:paddingTop="0dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="16dp" />
+
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/searchResultsContainer"
         android:name="com.funtv.player.ui.search.SearchResultsFragment"

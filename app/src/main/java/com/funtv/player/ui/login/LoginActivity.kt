@@ -35,6 +35,13 @@ class LoginActivity : AppCompatActivity() {
             )
         }
 
+        // El teclado del sistema no responde bien al control remoto en varios
+        // televisores (el foco se sale del teclado en vez de moverse entre letras),
+        // así que se usa un teclado propio en pantalla en su lugar.
+        binding.onScreenKeyboard.attachTo(binding.editUsername)
+        binding.onScreenKeyboard.attachTo(binding.editPassword)
+        binding.onScreenKeyboard.onDone = { binding.buttonConnect.performClick() }
+
         tryAutoLogin()
     }
 
