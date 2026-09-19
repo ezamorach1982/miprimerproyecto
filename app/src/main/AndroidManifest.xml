@@ -67,11 +67,6 @@
             android:theme="@style/Theme.FunTV.Browse" />
 
         <activity
-            android:name=".ui.browse.CategoryGridActivity"
-            android:exported="false"
-            android:theme="@style/Theme.FunTV.Browse" />
-
-        <activity
             android:name=".ui.details.SeriesDetailsActivity"
             android:exported="false"
             android:theme="@style/Theme.FunTV.Browse" />

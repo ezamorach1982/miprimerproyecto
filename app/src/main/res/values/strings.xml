@@ -41,6 +41,7 @@
     <string name="session_expired">Tu sesión ya no es válida. Inicia sesión de nuevo</string>
     <string name="continue_watching_header">Continuar viendo</string>
     <string name="favorites_header">Favoritos</string>
+    <string name="recently_added_header">Recién agregado</string>
     <string name="account_username_format">Usuario: %1$s</string>
     <string name="app_version_format">FunTV Player %1$s</string>
     <string name="settings_section_content">Contenido</string>

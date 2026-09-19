@@ -5,6 +5,7 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.leanback.widget.ImageCardView
@@ -25,7 +26,8 @@ import com.funtv.player.util.funTvApp
  */
 class CardPresenter(private val onFavoriteToggled: (() -> Unit)? = null) : Presenter() {
 
-    private class CardViewHolder(cardView: ImageCardView, val progressView: View) : ViewHolder(cardView)
+    private class CardViewHolder(cardView: ImageCardView, val progressView: View, val favoriteIcon: ImageView) :
+        ViewHolder(cardView)
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
         val cardView = ImageCardView(parent.context)
@@ -40,13 +42,26 @@ class CardPresenter(private val onFavoriteToggled: (() -> Unit)? = null) : Prese
             setBackgroundColor(ContextCompat.getColor(parent.context, R.color.funtv_accent))
             visibility = View.GONE
         }
-        val params = FrameLayout.LayoutParams(0, PROGRESS_BAR_HEIGHT_PX).apply {
+        val progressParams = FrameLayout.LayoutParams(0, PROGRESS_BAR_HEIGHT_PX).apply {
             gravity = Gravity.TOP or Gravity.START
             topMargin = CARD_HEIGHT - PROGRESS_BAR_HEIGHT_PX
         }
-        cardView.addView(progressView, params)
+        cardView.addView(progressView, progressParams)
 
-        return CardViewHolder(cardView, progressView)
+        // Corazón: marca visualmente las tarjetas ya guardadas como favoritas
+        // (se marca/desmarca manteniendo presionada la tarjeta).
+        val favoriteIcon = ImageView(parent.context).apply {
+            setImageResource(R.drawable.ic_heart_filled)
+            visibility = View.GONE
+        }
+        val favoriteParams = FrameLayout.LayoutParams(FAVORITE_ICON_SIZE_PX, FAVORITE_ICON_SIZE_PX).apply {
+            gravity = Gravity.TOP or Gravity.END
+            topMargin = FAVORITE_ICON_MARGIN_PX
+            rightMargin = FAVORITE_ICON_MARGIN_PX
+        }
+        cardView.addView(favoriteIcon, favoriteParams)
+
+        return CardViewHolder(cardView, progressView, favoriteIcon)
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, item: Any) {
@@ -104,8 +119,15 @@ class CardPresenter(private val onFavoriteToggled: (() -> Unit)? = null) : Prese
 
         // Mantener presionada una tarjeta de contenido la marca/desmarca como favorita.
         val favoriteEntry = favoriteEntryFor(item)
+        holder.favoriteIcon.visibility =
+            if (favoriteEntry != null && context.funTvApp().favoritesManager.isFavorite(favoriteEntry.key)) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
         cardView.setOnLongClickListener {
             val nowFavorite = context.funTvApp().favoritesManager.toggle(favoriteEntry ?: return@setOnLongClickListener false)
+            holder.favoriteIcon.visibility = if (nowFavorite) View.VISIBLE else View.GONE
             Toast.makeText(
                 context,
                 if (nowFavorite) R.string.favorite_added else R.string.favorite_removed,
@@ -121,6 +143,7 @@ class CardPresenter(private val onFavoriteToggled: (() -> Unit)? = null) : Prese
         val cardView = holder.view as ImageCardView
         cardView.mainImageView.setImageDrawable(null)
         applyProgress(holder.progressView, 0f)
+        holder.favoriteIcon.visibility = View.GONE
     }
 
     private fun typeLabel(context: Context, type: FavoriteType): String = when (type) {
@@ -189,5 +212,7 @@ class CardPresenter(private val onFavoriteToggled: (() -> Unit)? = null) : Prese
         private const val CARD_WIDTH = 313
         private const val CARD_HEIGHT = 176
         private const val PROGRESS_BAR_HEIGHT_PX = 8
+        private const val FAVORITE_ICON_SIZE_PX = 28
+        private const val FAVORITE_ICON_MARGIN_PX = 8
     }
 }

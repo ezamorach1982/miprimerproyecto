@@ -13,7 +13,9 @@ data class Series(
     @SerializedName("releaseDate") val releaseDate: String? = null,
     @SerializedName("release_date") val releaseDateAlt: String? = null,
     @SerializedName("rating") val rating: String? = "",
-    @SerializedName("category_id") val categoryId: String? = ""
+    @SerializedName("category_id") val categoryId: String? = "",
+    /** Timestamp Unix (segundos) de cuándo se agregó al panel, para la categoría "Recién agregado". */
+    @SerializedName("last_modified") val added: String? = null
 ) {
     val effectiveReleaseDate: String?
         get() = releaseDate ?: releaseDateAlt

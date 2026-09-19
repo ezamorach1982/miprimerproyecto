@@ -40,8 +40,8 @@ class SectionBrowseFragment : Fragment(R.layout.fragment_section_browse) {
     private lateinit var recyclerSidebar: RecyclerView
     private lateinit var textSectionTitle: TextView
 
-    private val sidebarAdapter = CategorySidebarAdapter { category -> selectCategory(category) }
-    private var selectedCategoryId: String? = null
+    private val sidebarAdapter = CategorySidebarAdapter { entry -> selectEntry(entry) }
+    private var selectedKey: String? = null
     private var backgroundRefreshJob: Job? = null
 
     private val contentType: ContentType by lazy {
@@ -127,18 +127,30 @@ class SectionBrowseFragment : Fragment(R.layout.fragment_section_browse) {
 
     private fun showCategories(categories: List<Category>) {
         if (!isAdded) return
-        sidebarAdapter.submitList(categories)
-        if (selectedCategoryId == null || categories.none { it.categoryId == selectedCategoryId }) {
-            categories.firstOrNull()?.let { selectCategory(it) }
+        val entries = mutableListOf<SidebarEntry>(SidebarEntry.Favorites)
+        // TV en vivo no trae una fecha de "agregado" confiable en la mayoría de los
+        // paneles Xtream, así que "Recién agregado" solo aplica a Películas y Series.
+        if (contentType != ContentType.LIVE) entries.add(SidebarEntry.RecentlyAdded)
+        entries.addAll(categories.map { SidebarEntry.RealCategory(it) })
+
+        sidebarAdapter.submitList(entries)
+        if (selectedKey == null || entries.none { it.selectionKey == selectedKey }) {
+            entries.firstOrNull()?.let { selectEntry(it) }
         }
     }
 
-    private fun selectCategory(category: Category) {
+    private fun selectEntry(entry: SidebarEntry) {
         if (!isAdded) return
-        selectedCategoryId = category.categoryId
-        sidebarAdapter.setSelected(category.categoryId)
+        selectedKey = entry.selectionKey
+        sidebarAdapter.setSelected(entry.selectionKey)
+        val fragment = when (entry) {
+            is SidebarEntry.RealCategory ->
+                CategoryGridFragment.newInstanceForCategory(contentType, entry.category.categoryId, entry.category.categoryName)
+            SidebarEntry.Favorites -> CategoryGridFragment.newInstanceForFavorites(contentType)
+            SidebarEntry.RecentlyAdded -> CategoryGridFragment.newInstanceForRecentlyAdded(contentType)
+        }
         childFragmentManager.beginTransaction()
-            .replace(R.id.gridContainer, CategoryGridFragment.newInstance(contentType, category.categoryId, category.categoryName))
+            .replace(R.id.gridContainer, fragment)
             .commitNow()
     }
 
