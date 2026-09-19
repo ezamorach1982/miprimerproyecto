@@ -135,6 +135,6 @@ class SearchResultsFragment : VerticalGridSupportFragment() {
     }
 
     companion object {
-        private const val GRID_COLUMNS = 5
+        private const val GRID_COLUMNS = 4
     }
 }

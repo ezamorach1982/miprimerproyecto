@@ -64,7 +64,9 @@ class CategoryGridFragment : VerticalGridSupportFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        title = categoryName
+        // No se pone título aquí: la lista lateral de categorías (en SectionBrowseFragment)
+        // ya muestra cuál está seleccionada, un título grande repitiendo el mismo texto
+        // arriba de la cuadrícula solo quita espacio para las tarjetas.
         loadItems()
     }
 
@@ -206,7 +208,7 @@ class CategoryGridFragment : VerticalGridSupportFragment() {
     }
 
     companion object {
-        private const val GRID_COLUMNS = 5
+        private const val GRID_COLUMNS = 4
         private const val ARG_CONTENT_TYPE = "arg_content_type"
         private const val ARG_CATEGORY_ID = "arg_category_id"
         private const val ARG_CATEGORY_NAME = "arg_category_name"
