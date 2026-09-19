@@ -1,16 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/funtv_background"
-    android:fillViewport="true">
+    android:background="@color/funtv_background">
+
+    <!-- Se ve mientras se revisa si hay una sesión guardada e intenta reconectar sola: el
+         formulario (y su teclado) solo aparece si de verdad hace falta pedir datos. -->
+    <ProgressBar
+        android:id="@+id/initialLoadingProgress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:indeterminateTint="@color/funtv_accent" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
     <LinearLayout
+        android:id="@+id/loginFormContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -163,4 +178,5 @@
             android:paddingBottom="12dp" />
 
     </LinearLayout>
-</ScrollView>
+    </ScrollView>
+</FrameLayout>

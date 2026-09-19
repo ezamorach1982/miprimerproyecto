@@ -1,39 +1,100 @@
 package com.funtv.player.ui.main
 
 import android.content.Context
+import android.graphics.Typeface
+import android.view.Gravity
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageView
-import androidx.leanback.widget.ImageCardView
+import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.leanback.widget.Presenter
+import com.funtv.player.R
 import com.funtv.player.util.formatLastUpdated
 import com.funtv.player.util.funTvApp
 
-/** Tarjetas grandes de sección del inicio, con "actualizado hace X" como subtítulo (mismo dato que ve el botón Actualizar). */
+/**
+ * Tarjetas grandes de sección del inicio: foto a página completa con un degradado y el
+ * título encima (en vez del ícono + barra de info plana de antes), con un pequeño efecto
+ * de "elevación" al enfocar con D-pad — el patrón que usan las apps de streaming actuales.
+ */
 class LandingPresenter : Presenter() {
 
+    private class LandingViewHolder(
+        root: FrameLayout,
+        val imageView: ImageView,
+        val titleView: TextView,
+        val subtitleView: TextView
+    ) : ViewHolder(root)
+
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
-        val cardView = ImageCardView(parent.context)
-        cardView.isFocusable = true
-        cardView.isFocusableInTouchMode = true
-        cardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT)
-        // Las imágenes de fondo son fotos (no íconos vectoriales a medida): que
-        // rellenen la tarjeta recortando en vez de deformarse o dejar bordes vacíos.
-        cardView.mainImageView.scaleType = ImageView.ScaleType.CENTER_CROP
-        return ViewHolder(cardView)
+        val context = parent.context
+
+        val imageView = ImageView(context).apply {
+            layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            scaleType = ImageView.ScaleType.CENTER_CROP
+        }
+
+        val scrim = android.view.View(context).apply {
+            layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, SCRIM_HEIGHT).apply {
+                gravity = Gravity.BOTTOM
+            }
+            background = ContextCompat.getDrawable(context, R.drawable.bg_hero_card_scrim)
+        }
+
+        val titleView = TextView(context).apply {
+            layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                gravity = Gravity.BOTTOM or Gravity.START
+                leftMargin = TEXT_MARGIN
+                rightMargin = TEXT_MARGIN
+                bottomMargin = TEXT_MARGIN + SUBTITLE_RESERVED
+            }
+            setTextColor(ContextCompat.getColor(context, R.color.funtv_text_primary))
+            textSize = 19f
+            setTypeface(typeface, Typeface.BOLD)
+            maxLines = 1
+        }
+
+        val subtitleView = TextView(context).apply {
+            layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                gravity = Gravity.BOTTOM or Gravity.START
+                leftMargin = TEXT_MARGIN
+                bottomMargin = TEXT_MARGIN
+            }
+            setTextColor(ContextCompat.getColor(context, R.color.funtv_text_secondary))
+            textSize = 12f
+        }
+
+        val root = FrameLayout(context).apply {
+            layoutParams = ViewGroup.LayoutParams(CARD_WIDTH, CARD_HEIGHT)
+            isFocusable = true
+            isFocusableInTouchMode = true
+            background = ContextCompat.getDrawable(context, R.drawable.bg_hero_card_focus)
+            addView(imageView)
+            addView(scrim)
+            addView(titleView)
+            addView(subtitleView)
+            setOnFocusChangeListener { view, hasFocus ->
+                val scale = if (hasFocus) FOCUS_SCALE else 1f
+                view.animate().scaleX(scale).scaleY(scale).setDuration(FOCUS_ANIM_MS).start()
+            }
+        }
+
+        return LandingViewHolder(root, imageView, titleView, subtitleView)
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, item: Any) {
-        val cardView = viewHolder.view as ImageCardView
+        val holder = viewHolder as LandingViewHolder
         val landingItem = item as? LandingItem ?: return
-        val context = cardView.context
-        cardView.titleText = context.getString(landingItem.titleRes)
-        cardView.contentText = formatLastUpdated(context, lastUpdatedFor(context, landingItem))
-        cardView.mainImageView.setImageResource(landingItem.drawableRes)
+        val context = holder.view.context
+        holder.titleView.text = context.getString(landingItem.titleRes)
+        holder.subtitleView.text = formatLastUpdated(context, lastUpdatedFor(context, landingItem))
+        holder.imageView.setImageResource(landingItem.drawableRes)
     }
 
     override fun onUnbindViewHolder(viewHolder: ViewHolder) {
-        val cardView = viewHolder.view as ImageCardView
-        cardView.mainImageView.setImageDrawable(null)
+        val holder = viewHolder as LandingViewHolder
+        holder.imageView.setImageDrawable(null)
     }
 
     private fun lastUpdatedFor(context: Context, item: LandingItem): Long {
@@ -48,5 +109,10 @@ class LandingPresenter : Presenter() {
     companion object {
         private const val CARD_WIDTH = 480
         private const val CARD_HEIGHT = 270
+        private const val SCRIM_HEIGHT = 150
+        private const val TEXT_MARGIN = 16
+        private const val SUBTITLE_RESERVED = 20
+        private const val FOCUS_SCALE = 1.06f
+        private const val FOCUS_ANIM_MS = 150L
     }
 }

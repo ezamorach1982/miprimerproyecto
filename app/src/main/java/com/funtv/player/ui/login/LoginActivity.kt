@@ -42,19 +42,32 @@ class LoginActivity : AppCompatActivity() {
         binding.onScreenKeyboard.attachTo(binding.editPassword)
         binding.onScreenKeyboard.onDone = { binding.buttonConnect.performClick() }
 
-        tryAutoLogin()
+        tryAutoLoginOrShowForm()
     }
 
-    /** Si ya hay credenciales guardadas, se rellenan los campos y se reintenta la conexión sin que el usuario tenga que volver a escribirlas. */
-    private fun tryAutoLogin() {
+    /**
+     * Si ya hay una sesión guardada, se reintenta la conexión en silencio: el formulario
+     * (y con él, el teclado en pantalla) queda oculto mientras tanto, y solo se muestra si
+     * el reintento falla o si de entrada no hay nada guardado. Antes el formulario siempre
+     * se mostraba de una, así que el teclado aparecía en cada apertura de la app aunque el
+     * usuario ya estuviera conectado.
+     */
+    private fun tryAutoLoginOrShowForm() {
         lifecycleScope.launch {
             val session = withContext(Dispatchers.IO) { funTvApp().sessionManager.getSession() }
-            if (session != null) {
-                binding.editUsername.setText(session.username)
-                binding.editPassword.setText(session.password)
-                performLogin(session.baseUrl, session.username, session.password, isAutoLogin = true)
+            if (session == null) {
+                showForm()
+                return@launch
             }
+            binding.editUsername.setText(session.username)
+            binding.editPassword.setText(session.password)
+            performLogin(session.baseUrl, session.username, session.password, isAutoLogin = true)
         }
+    }
+
+    private fun showForm() {
+        binding.initialLoadingProgress.visibility = android.view.View.GONE
+        binding.loginFormContainer.visibility = android.view.View.VISIBLE
     }
 
     private fun performLogin(serverUrl: String, username: String, password: String, isAutoLogin: Boolean) {
@@ -74,9 +87,11 @@ class LoginActivity : AppCompatActivity() {
                 goToHome()
             } catch (e: XtreamException) {
                 setLoading(false)
+                if (isAutoLogin) showForm()
                 showError(e.message ?: getString(R.string.login_error_generic))
             } catch (e: Exception) {
                 setLoading(false)
+                if (isAutoLogin) showForm()
                 showError(getString(R.string.login_error_generic))
             }
         }

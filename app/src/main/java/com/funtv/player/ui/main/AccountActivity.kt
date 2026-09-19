@@ -45,6 +45,7 @@ class AccountActivity : AppCompatActivity() {
 
         binding.buttonRefreshContent.setOnClickListener { refreshContent() }
         binding.buttonClearImageCache.setOnClickListener { clearImageCache() }
+        binding.buttonClearFavorites.setOnClickListener { clearFavorites() }
         binding.buttonLogout.setOnClickListener { logout() }
     }
 
@@ -72,6 +73,11 @@ class AccountActivity : AppCompatActivity() {
         loader.memoryCache?.clear()
         loader.diskCache?.clear()
         Toast.makeText(this, R.string.image_cache_cleared, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun clearFavorites() {
+        funTvApp().favoritesManager.clearAll()
+        Toast.makeText(this, R.string.favorites_cleared, Toast.LENGTH_SHORT).show()
     }
 
     private fun logout() {

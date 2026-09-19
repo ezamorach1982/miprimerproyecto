@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Degradado oscuro para la franja inferior de las tarjetas grandes del inicio, para
+     que el título se lea bien encima de la foto (patrón "edge-to-edge + scrim" de las
+     apps de streaming modernas). angle=90 va de abajo (startColor) hacia arriba. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <gradient
+        android:angle="90"
+        android:startColor="#E6000000"
+        android:endColor="#00000000" />
+</shape>

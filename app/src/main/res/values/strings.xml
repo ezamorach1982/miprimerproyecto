@@ -50,6 +50,8 @@
     <string name="action_refresh_in_progress">Actualizando…</string>
     <string name="action_clear_image_cache">Borrar caché de imágenes</string>
     <string name="image_cache_cleared">Caché de imágenes borrado</string>
+    <string name="action_clear_favorites">Borrar todos los favoritos</string>
+    <string name="favorites_cleared">Favoritos borrados</string>
     <string name="home_updated_never">Nunca actualizado</string>
     <string name="home_updated_just_now">Actualizado recién</string>
     <string name="home_updated_minutes">Actualizado hace %1$d min</string>

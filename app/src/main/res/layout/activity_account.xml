@@ -78,6 +78,17 @@
             android:text="@string/action_clear_image_cache"
             android:textColor="@color/funtv_text_primary" />
 
+        <Button
+            android:id="@+id/buttonClearFavorites"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="@color/funtv_surface_focused"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:text="@string/action_clear_favorites"
+            android:textColor="@color/funtv_text_primary" />
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
