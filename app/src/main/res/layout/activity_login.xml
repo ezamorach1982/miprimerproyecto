@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/funtv_background">
+    android:background="@drawable/bg_app_gradient">
 
     <!-- Se ve mientras se revisa si hay una sesión guardada e intenta reconectar sola: el
          formulario (y su teclado) solo aparece si de verdad hace falta pedir datos. -->

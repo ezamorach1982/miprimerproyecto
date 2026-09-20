@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fondo de la insignia de tipo de contenido en cada tarjeta; el color real se aplica
+     por código (backgroundTintList) según si es canal/película/serie. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="4dp" />
+    <solid android:color="@android:color/white" />
+</shape>

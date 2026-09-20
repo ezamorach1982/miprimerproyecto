@@ -28,6 +28,9 @@
     <string name="header_series">Series</string>
     <string name="header_account">Cuenta y ajustes</string>
     <string name="header_search">Buscar</string>
+    <string name="badge_live">EN VIVO</string>
+    <string name="badge_movie">PELÍCULA</string>
+    <string name="badge_series">SERIE</string>
     <string name="header_refresh">Actualizar</string>
     <string name="refresh_in_progress">Actualizando contenido del servidor…</string>
     <string name="refresh_success">Contenido actualizado</string>

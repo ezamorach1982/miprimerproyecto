@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fondo de pantallas principales: degradado diagonal con un toque de color de marca,
+     que se funde hacia el mismo negro de siempre para no restar legibilidad al contenido. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:angle="135"
+        android:startColor="@color/funtv_gradient_start"
+        android:centerColor="@color/funtv_gradient_center"
+        android:endColor="@color/funtv_gradient_end"
+        android:type="linear" />
+</shape>

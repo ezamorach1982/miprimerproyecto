@@ -1,9 +1,12 @@
 package com.funtv.player.ui.main
 
 import android.content.Context
+import android.graphics.Outline
 import android.graphics.Typeface
 import android.view.Gravity
+import android.view.View
 import android.view.ViewGroup
+import android.view.ViewOutlineProvider
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
@@ -76,6 +79,12 @@ class LandingPresenter : Presenter() {
             // El anillo de foco va como foreground (encima de todo), no background: la
             // foto a página completa lo taparía por debajo si fuera el fondo.
             foreground = ContextCompat.getDrawable(context, R.drawable.bg_hero_card_focus)
+            clipToOutline = true
+            outlineProvider = object : ViewOutlineProvider() {
+                override fun getOutline(view: View, outline: Outline) {
+                    outline.setRoundRect(0, 0, view.width, view.height, CORNER_RADIUS)
+                }
+            }
             setOnFocusChangeListener { view, hasFocus ->
                 val scale = if (hasFocus) FOCUS_SCALE else 1f
                 view.animate().scaleX(scale).scaleY(scale).setDuration(FOCUS_ANIM_MS).start()
@@ -116,5 +125,6 @@ class LandingPresenter : Presenter() {
         private const val SUBTITLE_RESERVED = 20
         private const val FOCUS_SCALE = 1.06f
         private const val FOCUS_ANIM_MS = 150L
+        private const val CORNER_RADIUS = 18f
     }
 }

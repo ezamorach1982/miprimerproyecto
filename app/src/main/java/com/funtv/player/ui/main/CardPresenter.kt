@@ -1,11 +1,13 @@
 package com.funtv.player.ui.main
 
 import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Outline
 import android.graphics.Typeface
-import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewOutlineProvider
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
@@ -38,7 +40,8 @@ class CardPresenter(private val onFavoriteToggled: (() -> Unit)? = null) : Prese
         val titleView: TextView,
         val subtitleView: TextView,
         val progressView: View,
-        val favoriteIcon: ImageView
+        val favoriteIcon: ImageView,
+        val badgeView: TextView
     ) : ViewHolder(root)
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
@@ -101,6 +104,22 @@ class CardPresenter(private val onFavoriteToggled: (() -> Unit)? = null) : Prese
             rightMargin = FAVORITE_ICON_MARGIN_PX
         }
 
+        // Insignia de tipo de contenido (EN VIVO/PELÍCULA/SERIE), arriba a la izquierda para
+        // no chocar con el corazón de favoritos que va arriba a la derecha.
+        val badgeView = TextView(context).apply {
+            setBackgroundResource(R.drawable.bg_badge_pill)
+            setTextColor(ContextCompat.getColor(context, R.color.funtv_text_primary))
+            textSize = 9f
+            setTypeface(typeface, Typeface.BOLD)
+            setPadding(BADGE_PADDING_H_PX, BADGE_PADDING_V_PX, BADGE_PADDING_H_PX, BADGE_PADDING_V_PX)
+            visibility = View.GONE
+        }
+        val badgeParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+            gravity = Gravity.TOP or Gravity.START
+            topMargin = FAVORITE_ICON_MARGIN_PX
+            leftMargin = FAVORITE_ICON_MARGIN_PX
+        }
+
         val root = FrameLayout(context).apply {
             layoutParams = ViewGroup.LayoutParams(CARD_WIDTH, CARD_HEIGHT)
             isFocusable = true
@@ -112,10 +131,17 @@ class CardPresenter(private val onFavoriteToggled: (() -> Unit)? = null) : Prese
             addView(subtitleView)
             addView(progressView, progressParams)
             addView(favoriteIcon, favoriteParams)
+            addView(badgeView, badgeParams)
             foreground = ContextCompat.getDrawable(context, R.drawable.bg_hero_card_focus)
+            clipToOutline = true
+            outlineProvider = object : ViewOutlineProvider() {
+                override fun getOutline(view: View, outline: Outline) {
+                    outline.setRoundRect(0, 0, view.width, view.height, CORNER_RADIUS)
+                }
+            }
         }
 
-        return CardViewHolder(root, imageView, titleView, subtitleView, progressView, favoriteIcon)
+        return CardViewHolder(root, imageView, titleView, subtitleView, progressView, favoriteIcon, badgeView)
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, item: Any) {
@@ -170,10 +196,11 @@ class CardPresenter(private val onFavoriteToggled: (() -> Unit)? = null) : Prese
             }
         }
 
+        bindBadge(context, holder.badgeView, item)
+
         // Mantener presionada una tarjeta de contenido la marca/desmarca como favorita.
         val favoriteEntry = favoriteEntryFor(item)
         val isFavorite = favoriteEntry != null && context.funTvApp().favoritesManager.isFavorite(favoriteEntry.key)
-        Log.d("FunTV-Fav", "bind item=$item key=${favoriteEntry?.key} isFavorite=$isFavorite")
         holder.favoriteIcon.visibility = if (isFavorite) View.VISIBLE else View.GONE
         holder.view.setOnLongClickListener {
             val nowFavorite = context.funTvApp().favoritesManager.toggle(favoriteEntry ?: return@setOnLongClickListener false)
@@ -193,12 +220,34 @@ class CardPresenter(private val onFavoriteToggled: (() -> Unit)? = null) : Prese
         holder.imageView.setImageDrawable(null)
         applyProgress(holder.progressView, 0f)
         holder.favoriteIcon.visibility = View.GONE
+        holder.badgeView.visibility = View.GONE
     }
 
     private fun typeLabel(context: Context, type: FavoriteType): String = when (type) {
         FavoriteType.LIVE -> context.getString(R.string.header_live)
         FavoriteType.VOD -> context.getString(R.string.header_movies)
         FavoriteType.SERIES -> context.getString(R.string.header_series)
+    }
+
+    /** Insignia de color por tipo de contenido (canal/película/serie), a la vista de un vistazo. */
+    private fun bindBadge(context: Context, badgeView: TextView, item: Any) {
+        val (textRes, colorRes) = when (item) {
+            is HomeCardItem.Live -> R.string.badge_live to R.color.funtv_blue
+            is HomeCardItem.Vod -> R.string.badge_movie to R.color.funtv_red
+            is HomeCardItem.SeriesItem -> R.string.badge_series to R.color.funtv_green
+            is HomeCardItem.FavoriteCard -> when (item.entry.type) {
+                FavoriteType.LIVE -> R.string.badge_live to R.color.funtv_blue
+                FavoriteType.VOD -> R.string.badge_movie to R.color.funtv_red
+                FavoriteType.SERIES -> R.string.badge_series to R.color.funtv_green
+            }
+            else -> {
+                badgeView.visibility = View.GONE
+                return
+            }
+        }
+        badgeView.text = context.getString(textRes)
+        badgeView.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, colorRes))
+        badgeView.visibility = View.VISIBLE
     }
 
     private fun favoriteEntryFor(item: Any): FavoriteEntry? = when (item) {
@@ -266,5 +315,8 @@ class CardPresenter(private val onFavoriteToggled: (() -> Unit)? = null) : Prese
         private const val PROGRESS_BAR_HEIGHT_PX = 8
         private const val FAVORITE_ICON_SIZE_PX = 26
         private const val FAVORITE_ICON_MARGIN_PX = 6
+        private const val BADGE_PADDING_H_PX = 8
+        private const val BADGE_PADDING_V_PX = 3
+        private const val CORNER_RADIUS = 14f
     }
 }

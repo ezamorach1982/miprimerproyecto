@@ -10,6 +10,13 @@
     <color name="funtv_surface">#1B1B22</color>
     <color name="funtv_surface_focused">#2A2A34</color>
 
+    <!-- Degradado de fondo de las pantallas principales: un toque de color de marca en vez
+         de negro liso, que se funde con el mismo fondo oscuro hacia el borde inferior para
+         no restarle legibilidad al contenido. -->
+    <color name="funtv_gradient_start">#241B4D</color>
+    <color name="funtv_gradient_center">#151329</color>
+    <color name="funtv_gradient_end">#0D0D12</color>
+
     <color name="funtv_text_primary">#FFFFFF</color>
     <color name="funtv_text_secondary">#AFAFBC</color>
     <color name="funtv_error">#FF5252</color>
