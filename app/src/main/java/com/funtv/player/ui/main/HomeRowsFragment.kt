@@ -80,7 +80,7 @@ class HomeRowsFragment : RowsSupportFragment() {
 
     private fun resumeWatching(entry: ContinueWatchingEntry) {
         startActivity(
-            PlaybackActivity.newIntent(requireContext(), entry.url, entry.title, posterUrl = entry.posterUrl)
+            PlaybackActivity.newIntent(requireContext(), entry.url, entry.title, posterUrl = entry.posterUrl, contentType = entry.type)
         )
     }
 

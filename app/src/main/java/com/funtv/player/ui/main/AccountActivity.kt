@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import coil.Coil
@@ -12,6 +13,7 @@ import com.funtv.player.R
 import com.funtv.player.data.ContentRefresher
 import com.funtv.player.databinding.ActivityAccountBinding
 import com.funtv.player.ui.login.LoginActivity
+import com.funtv.player.util.CrashHandler
 import com.funtv.player.util.formatExpirationDate
 import com.funtv.player.util.funTvApp
 import kotlinx.coroutines.launch
@@ -46,6 +48,7 @@ class AccountActivity : AppCompatActivity() {
         binding.buttonRefreshContent.setOnClickListener { refreshContent() }
         binding.buttonClearImageCache.setOnClickListener { clearImageCache() }
         binding.buttonClearFavorites.setOnClickListener { clearFavorites() }
+        binding.buttonViewLastCrash.setOnClickListener { showLastCrash() }
         binding.buttonLogout.setOnClickListener { logout() }
     }
 
@@ -78,6 +81,19 @@ class AccountActivity : AppCompatActivity() {
     private fun clearFavorites() {
         funTvApp().favoritesManager.clearAll()
         Toast.makeText(this, R.string.favorites_cleared, Toast.LENGTH_SHORT).show()
+    }
+
+    /** Muestra el último fallo no controlado guardado en disco, para poder reportarlo sin necesitar Logcat. */
+    private fun showLastCrash() {
+        val report = CrashHandler.readLastCrash(this)
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(R.string.last_crash_dialog_title)
+            .setMessage(report ?: getString(R.string.last_crash_none))
+            .setPositiveButton(R.string.action_close, null)
+        if (report != null) {
+            dialog.setNegativeButton(R.string.action_clear) { _, _ -> CrashHandler.clearLastCrash(this) }
+        }
+        dialog.show()
     }
 
     private fun logout() {

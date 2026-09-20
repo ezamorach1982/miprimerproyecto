@@ -57,6 +57,12 @@
     <string name="image_cache_cleared">Caché de imágenes borrado</string>
     <string name="action_clear_favorites">Borrar todos los favoritos</string>
     <string name="favorites_cleared">Favoritos borrados</string>
+    <string name="settings_section_support">Soporte</string>
+    <string name="action_view_last_crash">Ver último error</string>
+    <string name="last_crash_dialog_title">Último error registrado</string>
+    <string name="last_crash_none">FunTV no ha registrado ningún error desde la última vez que se revisó o se instaló.</string>
+    <string name="action_close">Cerrar</string>
+    <string name="action_clear">Borrar</string>
     <string name="home_updated_never">Nunca actualizado</string>
     <string name="home_updated_just_now">Actualizado recién</string>
     <string name="home_updated_minutes">Actualizado hace %1$d min</string>

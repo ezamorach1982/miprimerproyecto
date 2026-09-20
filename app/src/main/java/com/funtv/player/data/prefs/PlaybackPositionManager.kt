@@ -12,7 +12,9 @@ data class ContinueWatchingEntry(
     @SerializedName("posterUrl") val posterUrl: String? = null,
     @SerializedName("positionMs") val positionMs: Long,
     @SerializedName("durationMs") val durationMs: Long,
-    @SerializedName("updatedAt") val updatedAt: Long
+    @SerializedName("updatedAt") val updatedAt: Long,
+    /** Null en entradas guardadas antes de que existiera este campo; la insignia de tipo simplemente no se muestra en ese caso. */
+    @SerializedName("type") val type: FavoriteType? = null
 )
 
 /**

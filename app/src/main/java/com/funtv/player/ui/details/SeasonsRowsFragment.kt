@@ -15,6 +15,7 @@ import com.funtv.player.data.api.StreamUrlBuilder
 import com.funtv.player.data.model.Episode
 import com.funtv.player.data.model.SeriesInfoResponse
 import com.funtv.player.data.model.XtreamSession
+import com.funtv.player.data.prefs.FavoriteType
 import com.funtv.player.ui.player.PlaybackActivity
 import com.funtv.player.util.funTvApp
 
@@ -86,6 +87,7 @@ class SeasonsRowsFragment : RowsSupportFragment() {
                     episodeUrl(session, episode),
                     episode.title.orEmpty(),
                     posterUrl = episode.info?.movieImage,
+                    contentType = FavoriteType.SERIES,
                     upNextQueue = queue
                 )
             )

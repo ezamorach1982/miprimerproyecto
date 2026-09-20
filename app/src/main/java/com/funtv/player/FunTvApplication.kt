@@ -10,6 +10,7 @@ import com.funtv.player.data.model.LiveStream
 import com.funtv.player.data.prefs.FavoritesManager
 import com.funtv.player.data.prefs.PlaybackPositionManager
 import com.funtv.player.data.prefs.SessionManager
+import com.funtv.player.util.CrashHandler
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
@@ -49,6 +50,7 @@ class FunTvApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        CrashHandler.install(this)
         warmUpPreferencesInBackground()
         configureImageLoader()
     }

@@ -18,6 +18,7 @@ import androidx.media3.exoplayer.upstream.DefaultLoadErrorHandlingPolicy
 import com.funtv.player.R
 import com.funtv.player.data.api.StreamUrlBuilder
 import com.funtv.player.data.prefs.ContinueWatchingEntry
+import com.funtv.player.data.prefs.FavoriteType
 import com.funtv.player.data.prefs.PlaybackPositionManager
 import com.funtv.player.databinding.ActivityPlaybackBinding
 import com.funtv.player.util.funTvApp
@@ -59,6 +60,11 @@ class PlaybackActivity : AppCompatActivity() {
     private var currentPoster: String? = null
 
     private val isLive: Boolean by lazy { intent.getBooleanExtra(EXTRA_IS_LIVE, false) }
+
+    /** Película o serie, para que la tarjeta de "Continuar viendo" muestre la insignia de tipo correcta. Nulo en TV en vivo. */
+    private val contentType: FavoriteType? by lazy {
+        intent.getStringExtra(EXTRA_TYPE)?.let { runCatching { FavoriteType.valueOf(it) }.getOrNull() }
+    }
 
     // Cola de episodios que siguen a este (no solo el inmediato siguiente): al
     // avanzar automáticamente, el resto de la cola se reenvía a la próxima
@@ -213,7 +219,8 @@ class PlaybackActivity : AppCompatActivity() {
                     posterUrl = currentPoster,
                     positionMs = position,
                     durationMs = duration,
-                    updatedAt = System.currentTimeMillis()
+                    updatedAt = System.currentTimeMillis(),
+                    type = contentType
                 )
             )
         }
@@ -322,6 +329,7 @@ class PlaybackActivity : AppCompatActivity() {
         private const val EXTRA_TITLE = "extra_title"
         private const val EXTRA_POSTER = "extra_poster"
         private const val EXTRA_IS_LIVE = "extra_is_live"
+        private const val EXTRA_TYPE = "extra_type"
         private const val EXTRA_QUEUE_URLS = "extra_queue_urls"
         private const val EXTRA_QUEUE_TITLES = "extra_queue_titles"
         private const val EXTRA_QUEUE_POSTERS = "extra_queue_posters"
@@ -337,6 +345,7 @@ class PlaybackActivity : AppCompatActivity() {
             title: String,
             isLive: Boolean = false,
             posterUrl: String? = null,
+            contentType: FavoriteType? = null,
             upNextQueue: List<UpNextItem> = emptyList()
         ): Intent =
             Intent(context, PlaybackActivity::class.java)
@@ -344,6 +353,7 @@ class PlaybackActivity : AppCompatActivity() {
                 .putExtra(EXTRA_TITLE, title)
                 .putExtra(EXTRA_IS_LIVE, isLive)
                 .putExtra(EXTRA_POSTER, posterUrl)
+                .putExtra(EXTRA_TYPE, contentType?.name)
                 .putStringArrayListExtra(EXTRA_QUEUE_URLS, ArrayList(upNextQueue.map { it.url }))
                 .putStringArrayListExtra(EXTRA_QUEUE_TITLES, ArrayList(upNextQueue.map { it.title }))
                 .putStringArrayListExtra(EXTRA_QUEUE_POSTERS, ArrayList(upNextQueue.map { it.posterUrl.orEmpty() }))

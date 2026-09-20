@@ -24,8 +24,8 @@ android {
         applicationId = "com.funtv.player"
         minSdk = 21
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.1.0"
     }
 
     signingConfigs {
@@ -102,4 +102,10 @@ dependencies {
 
     // Carga de imágenes (posters/logos de canales)
     implementation("io.coil-kt:coil:2.7.0")
+
+    // Pruebas unitarias: Robolectric simula el entorno Android (Context, SharedPreferences)
+    // para poder probar las clases de persistencia sin un dispositivo/emulador real.
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.robolectric:robolectric:4.14")
+    testImplementation("androidx.test:core:1.6.1")
 }

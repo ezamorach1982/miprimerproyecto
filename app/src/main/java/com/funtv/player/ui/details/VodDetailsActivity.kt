@@ -9,6 +9,7 @@ import coil.load
 import com.funtv.player.R
 import com.funtv.player.data.api.StreamUrlBuilder
 import com.funtv.player.data.model.VodExtraInfo
+import com.funtv.player.data.prefs.FavoriteType
 import com.funtv.player.databinding.ActivityVodDetailsBinding
 import com.funtv.player.ui.player.PlaybackActivity
 import com.funtv.player.util.funTvApp
@@ -63,7 +64,7 @@ class VodDetailsActivity : FragmentActivity() {
 
     private fun playMovie() {
         val url = playUrl() ?: return
-        startActivity(PlaybackActivity.newIntent(this, url, streamName, posterUrl = streamIcon))
+        startActivity(PlaybackActivity.newIntent(this, url, streamName, posterUrl = streamIcon, contentType = FavoriteType.VOD))
     }
 
     private fun loadExtraInfo() {

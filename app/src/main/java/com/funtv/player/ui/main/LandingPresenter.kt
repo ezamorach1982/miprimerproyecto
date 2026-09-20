@@ -38,6 +38,8 @@ class LandingPresenter : Presenter() {
         val imageView = ImageView(context).apply {
             layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
             scaleType = ImageView.ScaleType.CENTER_CROP
+            // Decorativa: el título ya dice lo mismo, así que un lector de pantalla no debe anunciarla aparte.
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
 
         val scrim = android.view.View(context).apply {

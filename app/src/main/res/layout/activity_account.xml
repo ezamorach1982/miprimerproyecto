@@ -112,6 +112,27 @@
             android:textStyle="bold" />
 
         <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/settings_section_support"
+            android:textColor="@color/funtv_text_secondary"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/buttonViewLastCrash"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@color/funtv_surface_focused"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:text="@string/action_view_last_crash"
+            android:textColor="@color/funtv_text_primary" />
+
+        <TextView
             android:id="@+id/textAppVersion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

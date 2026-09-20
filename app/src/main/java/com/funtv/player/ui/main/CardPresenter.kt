@@ -50,6 +50,8 @@ class CardPresenter(private val onFavoriteToggled: (() -> Unit)? = null) : Prese
         val imageView = ImageView(context).apply {
             layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
             scaleType = ImageView.ScaleType.CENTER_CROP
+            // Decorativa: el título ya dice lo mismo, así que un lector de pantalla no debe anunciarla aparte.
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
 
         val scrim = View(context).apply {
@@ -239,6 +241,15 @@ class CardPresenter(private val onFavoriteToggled: (() -> Unit)? = null) : Prese
                 FavoriteType.LIVE -> R.string.badge_live to R.color.funtv_blue
                 FavoriteType.VOD -> R.string.badge_movie to R.color.funtv_red
                 FavoriteType.SERIES -> R.string.badge_series to R.color.funtv_green
+            }
+            is HomeCardItem.ContinueWatchingCard -> when (item.entry.type) {
+                FavoriteType.VOD -> R.string.badge_movie to R.color.funtv_red
+                FavoriteType.SERIES -> R.string.badge_series to R.color.funtv_green
+                // Nulo en entradas guardadas antes de existir este campo: sin insignia.
+                FavoriteType.LIVE, null -> {
+                    badgeView.visibility = View.GONE
+                    return
+                }
             }
             else -> {
                 badgeView.visibility = View.GONE
