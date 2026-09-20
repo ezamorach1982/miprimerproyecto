@@ -31,6 +31,8 @@
     <string name="badge_live">EN VIVO</string>
     <string name="badge_movie">PELÍCULA</string>
     <string name="badge_series">SERIE</string>
+    <string name="badge_movie_plural">PELÍCULAS</string>
+    <string name="badge_series_plural">SERIES</string>
     <string name="header_refresh">Actualizar</string>
     <string name="refresh_in_progress">Actualizando contenido del servidor…</string>
     <string name="refresh_success">Contenido actualizado</string>

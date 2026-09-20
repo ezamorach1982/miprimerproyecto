@@ -11,11 +11,11 @@
     <color name="funtv_surface_focused">#2A2A34</color>
 
     <!-- Degradado de fondo de las pantallas principales: un toque de color de marca en vez
-         de negro liso, que se funde con el mismo fondo oscuro hacia el borde inferior para
-         no restarle legibilidad al contenido. -->
-    <color name="funtv_gradient_start">#241B4D</color>
-    <color name="funtv_gradient_center">#151329</color>
-    <color name="funtv_gradient_end">#0D0D12</color>
+         de negro liso. Bien saturado en el tramo visible (donde no hay tarjetas encima) y
+         se funde hacia un tono oscuro con matiz azulado en el borde inferior. -->
+    <color name="funtv_gradient_start">#3A2B85</color>
+    <color name="funtv_gradient_center">#5C2E68</color>
+    <color name="funtv_gradient_end">#170F30</color>
 
     <color name="funtv_text_primary">#FFFFFF</color>
     <color name="funtv_text_secondary">#AFAFBC</color>

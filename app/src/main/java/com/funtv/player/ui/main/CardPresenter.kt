@@ -317,6 +317,6 @@ class CardPresenter(private val onFavoriteToggled: (() -> Unit)? = null) : Prese
         private const val FAVORITE_ICON_MARGIN_PX = 6
         private const val BADGE_PADDING_H_PX = 8
         private const val BADGE_PADDING_V_PX = 3
-        private const val CORNER_RADIUS = 14f
+        private const val CORNER_RADIUS = 24f
     }
 }

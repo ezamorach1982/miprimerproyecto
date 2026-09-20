@@ -1,6 +1,7 @@
 package com.funtv.player.ui.main
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Outline
 import android.graphics.Typeface
 import android.view.Gravity
@@ -27,7 +28,8 @@ class LandingPresenter : Presenter() {
         root: FrameLayout,
         val imageView: ImageView,
         val titleView: TextView,
-        val subtitleView: TextView
+        val subtitleView: TextView,
+        val badgeView: TextView
     ) : ViewHolder(root)
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
@@ -68,6 +70,21 @@ class LandingPresenter : Presenter() {
             textSize = 12f
         }
 
+        // Insignia de color por tipo (EN VIVO/PELÍCULAS/SERIES): mismo lenguaje visual que
+        // las tarjetas de contenido, aquí sí visible de entrada en el propio Inicio.
+        val badgeView = TextView(context).apply {
+            setBackgroundResource(R.drawable.bg_badge_pill)
+            setTextColor(ContextCompat.getColor(context, R.color.funtv_text_primary))
+            textSize = 11f
+            setTypeface(typeface, Typeface.BOLD)
+            setPadding(BADGE_PADDING_H_PX, BADGE_PADDING_V_PX, BADGE_PADDING_H_PX, BADGE_PADDING_V_PX)
+        }
+        val badgeParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+            gravity = Gravity.TOP or Gravity.START
+            topMargin = BADGE_MARGIN_PX
+            leftMargin = BADGE_MARGIN_PX
+        }
+
         val root = FrameLayout(context).apply {
             layoutParams = ViewGroup.LayoutParams(CARD_WIDTH, CARD_HEIGHT)
             isFocusable = true
@@ -76,6 +93,7 @@ class LandingPresenter : Presenter() {
             addView(scrim)
             addView(titleView)
             addView(subtitleView)
+            addView(badgeView, badgeParams)
             // El anillo de foco va como foreground (encima de todo), no background: la
             // foto a página completa lo taparía por debajo si fuera el fondo.
             foreground = ContextCompat.getDrawable(context, R.drawable.bg_hero_card_focus)
@@ -91,7 +109,7 @@ class LandingPresenter : Presenter() {
             }
         }
 
-        return LandingViewHolder(root, imageView, titleView, subtitleView)
+        return LandingViewHolder(root, imageView, titleView, subtitleView, badgeView)
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, item: Any) {
@@ -101,6 +119,14 @@ class LandingPresenter : Presenter() {
         holder.titleView.text = context.getString(landingItem.titleRes)
         holder.subtitleView.text = formatLastUpdated(context, lastUpdatedFor(context, landingItem))
         holder.imageView.setImageResource(landingItem.drawableRes)
+
+        val (badgeTextRes, badgeColorRes) = when (landingItem) {
+            LandingItem.LiveTv -> R.string.badge_live to R.color.funtv_blue
+            LandingItem.Movies -> R.string.badge_movie_plural to R.color.funtv_red
+            LandingItem.Series -> R.string.badge_series_plural to R.color.funtv_green
+        }
+        holder.badgeView.text = context.getString(badgeTextRes)
+        holder.badgeView.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, badgeColorRes))
     }
 
     override fun onUnbindViewHolder(viewHolder: ViewHolder) {
@@ -125,6 +151,9 @@ class LandingPresenter : Presenter() {
         private const val SUBTITLE_RESERVED = 20
         private const val FOCUS_SCALE = 1.06f
         private const val FOCUS_ANIM_MS = 150L
-        private const val CORNER_RADIUS = 18f
+        private const val CORNER_RADIUS = 30f
+        private const val BADGE_PADDING_H_PX = 10
+        private const val BADGE_PADDING_V_PX = 4
+        private const val BADGE_MARGIN_PX = 10
     }
 }
