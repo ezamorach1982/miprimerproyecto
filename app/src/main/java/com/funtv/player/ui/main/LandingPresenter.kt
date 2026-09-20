@@ -69,11 +69,13 @@ class LandingPresenter : Presenter() {
             layoutParams = ViewGroup.LayoutParams(CARD_WIDTH, CARD_HEIGHT)
             isFocusable = true
             isFocusableInTouchMode = true
-            background = ContextCompat.getDrawable(context, R.drawable.bg_hero_card_focus)
             addView(imageView)
             addView(scrim)
             addView(titleView)
             addView(subtitleView)
+            // El anillo de foco va como foreground (encima de todo), no background: la
+            // foto a página completa lo taparía por debajo si fuera el fondo.
+            foreground = ContextCompat.getDrawable(context, R.drawable.bg_hero_card_focus)
             setOnFocusChangeListener { view, hasFocus ->
                 val scale = if (hasFocus) FOCUS_SCALE else 1f
                 view.animate().scaleX(scale).scaleY(scale).setDuration(FOCUS_ANIM_MS).start()

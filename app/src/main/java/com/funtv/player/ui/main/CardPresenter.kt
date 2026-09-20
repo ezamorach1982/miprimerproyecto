@@ -1,14 +1,16 @@
 package com.funtv.player.ui.main
 
 import android.content.Context
+import android.graphics.Typeface
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.leanback.widget.ImageCardView
 import androidx.leanback.widget.Presenter
 import coil.load
 import com.funtv.player.R
@@ -19,6 +21,10 @@ import com.funtv.player.data.prefs.FavoritesManager
 import com.funtv.player.util.funTvApp
 
 /**
+ * Tarjeta de contenido (canal/película/serie/continuar viendo/favorito): foto a página
+ * completa con degradado y título encima, igual que las tarjetas grandes del inicio
+ * (LandingPresenter), para que el mismo estilo se sienta en toda la app y no solo ahí.
+ *
  * @param onFavoriteToggled se llama después de marcar/desmarcar un favorito
  * (mantener presionado). La usa el Home para refrescar su fila "Favoritos" al
  * instante cuando se quita uno desde ahí mismo; el resto de las pantallas no la
@@ -26,31 +32,66 @@ import com.funtv.player.util.funTvApp
  */
 class CardPresenter(private val onFavoriteToggled: (() -> Unit)? = null) : Presenter() {
 
-    private class CardViewHolder(cardView: ImageCardView, val progressView: View, val favoriteIcon: ImageView) :
-        ViewHolder(cardView)
+    private class CardViewHolder(
+        root: FrameLayout,
+        val imageView: ImageView,
+        val titleView: TextView,
+        val subtitleView: TextView,
+        val progressView: View,
+        val favoriteIcon: ImageView
+    ) : ViewHolder(root)
 
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder {
-        val cardView = ImageCardView(parent.context)
-        cardView.isFocusable = true
-        cardView.isFocusableInTouchMode = true
-        cardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT)
-        cardView.setBackgroundColor(ContextCompat.getColor(parent.context, R.color.funtv_surface))
+        val context = parent.context
 
-        // Barra de progreso ("continuar viendo"): una vista aparte sobre la imagen,
-        // no un drawable compuesto, para no depender de callbacks de carga de imagen.
-        val progressView = View(parent.context).apply {
-            setBackgroundColor(ContextCompat.getColor(parent.context, R.color.funtv_accent))
+        val imageView = ImageView(context).apply {
+            layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            scaleType = ImageView.ScaleType.CENTER_CROP
+        }
+
+        val scrim = View(context).apply {
+            layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, SCRIM_HEIGHT).apply {
+                gravity = Gravity.BOTTOM
+            }
+            background = ContextCompat.getDrawable(context, R.drawable.bg_hero_card_scrim)
+        }
+
+        val titleView = TextView(context).apply {
+            layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                gravity = Gravity.BOTTOM or Gravity.START
+                leftMargin = TEXT_MARGIN
+                rightMargin = TEXT_MARGIN
+                bottomMargin = TEXT_MARGIN + SUBTITLE_RESERVED
+            }
+            setTextColor(ContextCompat.getColor(context, R.color.funtv_text_primary))
+            textSize = 14f
+            setTypeface(typeface, Typeface.BOLD)
+            maxLines = 1
+        }
+
+        val subtitleView = TextView(context).apply {
+            layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                gravity = Gravity.BOTTOM or Gravity.START
+                leftMargin = TEXT_MARGIN
+                bottomMargin = TEXT_MARGIN
+            }
+            setTextColor(ContextCompat.getColor(context, R.color.funtv_text_secondary))
+            textSize = 11f
+        }
+
+        // Barra de progreso ("continuar viendo"): pegada al borde inferior, sobre la imagen.
+        val progressView = View(context).apply {
+            setBackgroundColor(ContextCompat.getColor(context, R.color.funtv_accent))
             visibility = View.GONE
         }
         val progressParams = FrameLayout.LayoutParams(0, PROGRESS_BAR_HEIGHT_PX).apply {
             gravity = Gravity.TOP or Gravity.START
             topMargin = CARD_HEIGHT - PROGRESS_BAR_HEIGHT_PX
         }
-        cardView.addView(progressView, progressParams)
 
         // Corazón: marca visualmente las tarjetas ya guardadas como favoritas
         // (se marca/desmarca manteniendo presionada la tarjeta).
-        val favoriteIcon = ImageView(parent.context).apply {
+        val favoriteIcon = ImageView(context).apply {
             setImageResource(R.drawable.ic_heart_filled)
             visibility = View.GONE
         }
@@ -59,73 +100,82 @@ class CardPresenter(private val onFavoriteToggled: (() -> Unit)? = null) : Prese
             topMargin = FAVORITE_ICON_MARGIN_PX
             rightMargin = FAVORITE_ICON_MARGIN_PX
         }
-        cardView.addView(favoriteIcon, favoriteParams)
 
-        return CardViewHolder(cardView, progressView, favoriteIcon)
+        val root = FrameLayout(context).apply {
+            layoutParams = ViewGroup.LayoutParams(CARD_WIDTH, CARD_HEIGHT)
+            isFocusable = true
+            isFocusableInTouchMode = true
+            setBackgroundColor(ContextCompat.getColor(context, R.color.funtv_surface))
+            addView(imageView)
+            addView(scrim)
+            addView(titleView)
+            addView(subtitleView)
+            addView(progressView, progressParams)
+            addView(favoriteIcon, favoriteParams)
+            foreground = ContextCompat.getDrawable(context, R.drawable.bg_hero_card_focus)
+        }
+
+        return CardViewHolder(root, imageView, titleView, subtitleView, progressView, favoriteIcon)
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, item: Any) {
         val holder = viewHolder as CardViewHolder
-        val cardView = holder.view as ImageCardView
-        val context = cardView.context
+        val context = holder.view.context
         when (item) {
             is HomeCardItem.Live -> {
-                cardView.titleText = item.stream.name
-                cardView.contentText = context.getString(R.string.header_live)
-                loadImage(cardView, item.stream.streamIcon)
+                holder.titleView.text = item.stream.name
+                holder.subtitleView.text = context.getString(R.string.header_live)
+                loadImage(holder.imageView, item.stream.streamIcon)
                 applyProgress(holder.progressView, 0f)
             }
             is HomeCardItem.Vod -> {
-                cardView.titleText = item.stream.name
-                cardView.contentText = context.getString(R.string.header_movies)
-                loadImage(cardView, item.stream.streamIcon)
+                holder.titleView.text = item.stream.name
+                holder.subtitleView.text = context.getString(R.string.header_movies)
+                loadImage(holder.imageView, item.stream.streamIcon)
                 applyProgress(holder.progressView, vodProgress(context, item))
             }
             is HomeCardItem.SeriesItem -> {
-                cardView.titleText = item.series.name
-                cardView.contentText = context.getString(R.string.header_series)
-                loadImage(cardView, item.series.cover)
+                holder.titleView.text = item.series.name
+                holder.subtitleView.text = context.getString(R.string.header_series)
+                loadImage(holder.imageView, item.series.cover)
                 applyProgress(holder.progressView, 0f)
             }
             is HomeCardItem.Retry -> {
-                cardView.titleText = context.getString(R.string.action_retry)
-                cardView.contentText = item.sectionTitle
-                cardView.mainImageView.setImageResource(R.drawable.ic_retry)
+                holder.titleView.text = context.getString(R.string.action_retry)
+                holder.subtitleView.text = item.sectionTitle
+                holder.imageView.setImageResource(R.drawable.ic_retry)
                 applyProgress(holder.progressView, 0f)
             }
             is HomeCardItem.SeeAll -> {
-                cardView.titleText = context.getString(R.string.action_see_all)
-                cardView.contentText = ""
-                cardView.mainImageView.setImageResource(R.drawable.ic_see_all)
+                holder.titleView.text = context.getString(R.string.action_see_all)
+                holder.subtitleView.text = ""
+                holder.imageView.setImageResource(R.drawable.ic_see_all)
                 applyProgress(holder.progressView, 0f)
             }
             is HomeCardItem.ContinueWatchingCard -> {
                 val entry = item.entry
-                cardView.titleText = entry.title
+                holder.titleView.text = entry.title
                 val percent = if (entry.durationMs > 0) (entry.positionMs * 100 / entry.durationMs).toInt() else 0
-                cardView.contentText = context.getString(R.string.continue_watching_percent, percent)
-                loadImage(cardView, entry.posterUrl)
+                holder.subtitleView.text = context.getString(R.string.continue_watching_percent, percent)
+                loadImage(holder.imageView, entry.posterUrl)
                 val progress = if (entry.durationMs > 0) entry.positionMs.toFloat() / entry.durationMs else 0f
                 applyProgress(holder.progressView, progress)
             }
             is HomeCardItem.FavoriteCard -> {
                 val entry = item.entry
-                cardView.titleText = entry.title
-                cardView.contentText = typeLabel(context, entry.type)
-                loadImage(cardView, entry.posterUrl)
+                holder.titleView.text = entry.title
+                holder.subtitleView.text = typeLabel(context, entry.type)
+                loadImage(holder.imageView, entry.posterUrl)
                 applyProgress(holder.progressView, 0f)
             }
         }
 
         // Mantener presionada una tarjeta de contenido la marca/desmarca como favorita.
         val favoriteEntry = favoriteEntryFor(item)
-        holder.favoriteIcon.visibility =
-            if (favoriteEntry != null && context.funTvApp().favoritesManager.isFavorite(favoriteEntry.key)) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
-        cardView.setOnLongClickListener {
+        val isFavorite = favoriteEntry != null && context.funTvApp().favoritesManager.isFavorite(favoriteEntry.key)
+        Log.d("FunTV-Fav", "bind item=$item key=${favoriteEntry?.key} isFavorite=$isFavorite")
+        holder.favoriteIcon.visibility = if (isFavorite) View.VISIBLE else View.GONE
+        holder.view.setOnLongClickListener {
             val nowFavorite = context.funTvApp().favoritesManager.toggle(favoriteEntry ?: return@setOnLongClickListener false)
             holder.favoriteIcon.visibility = if (nowFavorite) View.VISIBLE else View.GONE
             Toast.makeText(
@@ -140,8 +190,7 @@ class CardPresenter(private val onFavoriteToggled: (() -> Unit)? = null) : Prese
 
     override fun onUnbindViewHolder(viewHolder: ViewHolder) {
         val holder = viewHolder as CardViewHolder
-        val cardView = holder.view as ImageCardView
-        cardView.mainImageView.setImageDrawable(null)
+        holder.imageView.setImageDrawable(null)
         applyProgress(holder.progressView, 0f)
         holder.favoriteIcon.visibility = View.GONE
     }
@@ -197,12 +246,12 @@ class CardPresenter(private val onFavoriteToggled: (() -> Unit)? = null) : Prese
         progressView.layoutParams = params
     }
 
-    private fun loadImage(cardView: ImageCardView, url: String?) {
+    private fun loadImage(imageView: ImageView, url: String?) {
         if (url.isNullOrBlank()) {
-            cardView.mainImageView.setImageResource(R.drawable.placeholder_poster)
+            imageView.setImageResource(R.drawable.placeholder_poster)
             return
         }
-        cardView.mainImageView.load(url) {
+        imageView.load(url) {
             placeholder(R.drawable.placeholder_poster)
             error(R.drawable.placeholder_poster)
         }
@@ -211,8 +260,11 @@ class CardPresenter(private val onFavoriteToggled: (() -> Unit)? = null) : Prese
     companion object {
         private const val CARD_WIDTH = 313
         private const val CARD_HEIGHT = 176
+        private const val SCRIM_HEIGHT = 100
+        private const val TEXT_MARGIN = 10
+        private const val SUBTITLE_RESERVED = 16
         private const val PROGRESS_BAR_HEIGHT_PX = 8
-        private const val FAVORITE_ICON_SIZE_PX = 28
-        private const val FAVORITE_ICON_MARGIN_PX = 8
+        private const val FAVORITE_ICON_SIZE_PX = 26
+        private const val FAVORITE_ICON_MARGIN_PX = 6
     }
 }
